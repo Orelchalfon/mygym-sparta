@@ -31,6 +31,24 @@ const exercisesQO = queryOptions({
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  head: ({ params }) => {
+    const area = areaName(params.areaId);
+    const desc = `מכשירי האימון באזור ${area} — נהל משקל, חזרות וסטים והתחל אימון עם טיימר מנוחה אוטומטי.`;
+    const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}`;
+    return {
+      meta: [
+        { title: `${area} — מכשירי אימון` },
+        { name: "description", content: desc },
+        { property: "og:title", content: `${area} — מכשירי אימון` },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        { name: "twitter:title", content: `${area} — מכשירי אימון` },
+        { name: "twitter:description", content: desc },
+        { name: "robots", content: "noindex" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: AreaPage,
 });
 
