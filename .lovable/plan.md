@@ -1,55 +1,51 @@
-בחרת ב-Lovable Cloud — מעולה. הנתונים יישמרו בענן (Postgres מנוהל) ויהיו זמינים מכל מכשיר אחרי התחברות.
+# Spotify Player Overlay (Web Playback SDK)
 
-## מה ייבנה
+A persistent player bar pinned to the bottom of all authenticated pages. Each user signs in with their own Spotify Premium account and can play/pause/skip any track from their library.
 
-**אימות**
-- מסך `/auth`: התחברות + הרשמה במייל וסיסמה.
-- אחרי התחברות → מועבר לאזורים. כפתור "התנתק" בכותרת.
+## What you'll see
+- A slim bar fixed to the bottom of `/areas`, `/areas/$areaId`, and the active exercise page.
+- When not connected: a "Connect Spotify" button.
+- When connected: album art, track name, artist, play/pause, prev/next, and a disconnect button.
+- During the rest timer, the bar stays visible so you can control music between sets.
 
-**מסך ראשי — בחירת אזור** (תחת `_authenticated`)
-- רשת כרטיסיות: חזה, גב, רגליים, כתפיים, יד קדמית, יד אחורית, בטן, מתיחות.
-- כל אזור מציג כמה מכשירים יש בו וכמה הושלמו היום (סשן יומי).
-- כפתור "אפס יום" שמנקה את ההתקדמות היומית.
+## Spotify setup you'll need to do (one-time, ~5 min)
+This requires **your own** Spotify developer credentials — Spotify doesn't allow shared app credentials for Web Playback, and each end user must have **Spotify Premium**.
 
-**מסך אזור — רשימת מכשירים**
-- כרטיס לכל מכשיר עם כפתור **"התחל"** שחושף משקל / חזרות / סטים נותרו וכפתור **חץ שמאלה ←**.
-- אייקון עיפרון לעריכת משקל/חזרות/סטים. כפתור "+ הוסף מכשיר".
+1. Go to https://developer.spotify.com/dashboard → Create an app.
+2. Add Redirect URI: `https://mygym-sparta.lovable.app/spotify/callback` (and the preview URL too).
+3. Copy the **Client ID** and **Client Secret**.
+4. I'll prompt for `SPOTIFY_CLIENT_ID` and `SPOTIFY_CLIENT_SECRET` via the secrets tool.
 
-**זרימת סט + טיימר 45 שניות**
-- לחיצה על החץ ← מסך טיימר מסך מלא, ספירה לאחור גדולה ופס התקדמות עגול.
-- בסיום הטיימר (או "דלג"): הסט הבא מתחיל, מספר הסטים יורד (3→2→1).
-- אחרי הסט האחרון: המכשיר מסומן ✓ והמשתמש חוזר לרשימת האזור.
+## Technical implementation
 
-## נתונים שייזרעו (מהתמונה שלך + ממוצע ≈25 ק"ג ליד קדמית/אחורית/בטן)
+**Auth flow** — Spotify Authorization Code with PKCE, per user.
+- New route `src/routes/spotify.callback.tsx` handles the OAuth redirect.
+- Server functions in `src/lib/spotify.functions.ts`:
+  - `exchangeSpotifyCode({ code, verifier })` — swap auth code for tokens.
+  - `refreshSpotifyToken({ refreshToken })` — refresh on expiry.
+- Tokens stored in a new table `user_spotify_tokens` (user_id, access_token, refresh_token, expires_at) with RLS so each user only reads their own row. Includes `GRANT`s for `authenticated` and `service_role`.
 
-| אזור | מכשיר | משקל | חזרות | סטים |
-|---|---|---|---|---|
-| חזה | 6 | 35 | 7 | 3 |
-| חזה | 9 | 32 | 10 | 3 |
-| גב | 1 | 32 | 7 | 3 |
-| גב | 9-2 | 32 | 7 | 3 |
-| גב | 14 | 10 | 7 | 3 |
-| רגליים | 2 | 20 | 7 | 3 |
-| רגליים | 8 | 32 | 7 | 3 |
-| כתפיים | 16 | 10 | 7 | 3 |
-| יד קדמית | חדש | 25 | 7 | 3 |
-| יד אחורית | חדש | 25 | 7 | 3 |
-| בטן | חדש | 25 | 7 | 3 |
+**Player** — `src/components/spotify-player.tsx`
+- Loads the Spotify Web Playback SDK script (`https://sdk.scdn.co/spotify-player.js`).
+- Initializes a `Spotify.Player` with the user's access token; auto-refreshes when the token expires.
+- Renders the bottom bar UI using existing shadcn `Button` + `lucide-react` icons (Play, Pause, SkipBack, SkipForward).
+- Polls `player.getCurrentState()` for track metadata and playback state.
 
-## עיצוב
+**Mounting** — added to `src/routes/_authenticated/route.tsx` so it appears on every authenticated route. Bar height (~72px) added as bottom padding to the layout so it never covers content.
 
-עברית מלאה (RTL), מובייל-פירסט. רקע כהה (slate-950), אקסנט כתום-לבה לכפתור "התחל" ולטיימר, ירוק רך ל-✓. ספרות גדולות במיוחד למשקל ולטיימר.
+**RTL/styling** — uses existing dark theme tokens (`bg-card`, `border-border`, `text-foreground`), matches the orange `--primary` accent for the play button.
 
-## פרטים טכניים
+## Files to create
+- `src/lib/spotify.functions.ts` — token exchange/refresh server fns
+- `src/lib/spotify-pkce.ts` — PKCE verifier/challenge helpers (client)
+- `src/components/spotify-player.tsx` — the overlay bar
+- `src/routes/spotify.callback.tsx` — OAuth callback route
+- `supabase/migrations/<ts>_user_spotify_tokens.sql` — token storage
 
-**Backend (Lovable Cloud / Postgres):**
-- `exercises` — שורה לכל מכשיר של המשתמש: `id, user_id, area, name, weight, reps, sets, sort_order, created_at`. RLS: רק `user_id = auth.uid()`. GRANTs ל-`authenticated` + `service_role`.
-- `workout_sessions` — סשן יומי לכל משתמש: `id, user_id, started_at`.
-- `session_progress` — סטים שהושלמו: `id, session_id, exercise_id, completed_sets`. RLS דרך `session.user_id`.
-- Seed ראשוני אוטומטי בכניסה הראשונה של המשתמש (אם אין לו מכשירים — מזריק את 11 השורות מהטבלה למעלה).
+## Files to edit
+- `src/routes/_authenticated/route.tsx` — mount `<SpotifyPlayer />` and add bottom padding
 
-**Frontend (TanStack Start):**
-- Routes: `/auth`, `/_authenticated/index` (אזורים), `/_authenticated/area/$areaId`, `/_authenticated/area/$areaId/exercise/$exerciseId`.
-- Server functions עם `requireSupabaseAuth` לקריאה/כתיבה.
-- TanStack Query לקאש ואינווולידציה אחרי כל סט שהושלם.
-- טיימר ב-`setInterval` עם cleanup.
+## Limitations to know
+- End users **must have Spotify Premium** — the Web Playback SDK refuses free accounts (Spotify rule, not ours).
+- Works on desktop and mobile browsers, but iOS Safari has known SDK quirks; mobile users may need to tap once to start audio.
+- You'll need to add each tester's Spotify email under "Users and Access" in your Spotify dashboard until the app is submitted for extension (Spotify's quota mode).
