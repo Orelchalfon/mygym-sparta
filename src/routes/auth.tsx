@@ -93,7 +93,7 @@ function AuthPage() {
         </button>
       </div>
     </div>
-}
+  );
 
 function getErrorMessage(err: unknown): string {
   const msg = err instanceof Error ? err.message : "";
