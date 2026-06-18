@@ -15,6 +15,24 @@ const exercisesQO = queryOptions({
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$exerciseId")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  head: ({ params }) => {
+    const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}/exercise/${params.exerciseId}`;
+    const title = "אימון פעיל — אימון אישי";
+    const desc = "בצע סטים, עקוב אחר התקדמות והפעל טיימר מנוחה אוטומטי בין סטים.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        { name: "robots", content: "noindex" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ExercisePage,
 });
 
@@ -109,6 +127,7 @@ function ExercisePage() {
           onClick={exit}
           className="absolute top-5 left-5 grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
           title="צא"
+          aria-label="סגור והחזור לאזור האימון"
         >
           <X className="size-5" />
         </button>
@@ -171,6 +190,7 @@ function ExercisePage() {
             onClick={exit}
             className="grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
             title="צא"
+            aria-label="סגור והחזור לאזור האימון"
           >
             <X className="size-5" />
           </button>

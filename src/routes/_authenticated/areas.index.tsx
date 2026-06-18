@@ -14,6 +14,19 @@ const exercisesQO = queryOptions({
 
 export const Route = createFileRoute("/_authenticated/areas/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  head: () => ({
+    meta: [
+      { title: "אזורי אימון — אימון אישי" },
+      { name: "description", content: "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור." },
+      { property: "og:title", content: "אזורי אימון — אימון אישי" },
+      { property: "og:description", content: "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור." },
+      { property: "og:url", content: "https://mygym-sparta.lovable.app/areas" },
+      { name: "twitter:title", content: "אזורי אימון — אימון אישי" },
+      { name: "twitter:description", content: "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור." },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://mygym-sparta.lovable.app/areas" }],
+  }),
   component: AreasPage,
 });
 
@@ -61,6 +74,7 @@ function AreasPage() {
             variant="ghost"
             onClick={signOut}
             title="התנתק"
+            aria-label="התנתק מהחשבון"
             className="shrink-0"
           >
             <LogOut className="size-5" />
@@ -69,6 +83,7 @@ function AreasPage() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <h1 className="sr-only">אזורי אימון</h1>
         <div className="mb-5 flex items-baseline justify-between">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">בחר אזור אימון</h2>
           <span className="text-xs text-muted-foreground">

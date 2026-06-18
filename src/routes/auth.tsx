@@ -8,7 +8,18 @@ import { Dumbbell, LogIn, UserPlus, Mail, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [{ title: "כניסה — כושר" }] }),
+  head: () => ({
+    meta: [
+      { title: "כניסה / הרשמה — אימון אישי" },
+      { name: "description", content: "התחבר או הירשם לאימון אישי כדי לעקוב אחרי משקלים, חזרות וסטים בכל אימון בחדר הכושר." },
+      { property: "og:title", content: "כניסה / הרשמה — אימון אישי" },
+      { property: "og:description", content: "התחבר או הירשם לאימון אישי כדי לעקוב אחרי משקלים, חזרות וסטים בכל אימון בחדר הכושר." },
+      { property: "og:url", content: "https://mygym-sparta.lovable.app/auth" },
+      { name: "twitter:title", content: "כניסה / הרשמה — אימון אישי" },
+      { name: "twitter:description", content: "התחבר או הירשם לאימון אישי כדי לעקוב אחרי משקלים, חזרות וסטים בכל אימון בחדר הכושר." },
+    ],
+    links: [{ rel: "canonical", href: "https://mygym-sparta.lovable.app/auth" }],
+  }),
   component: AuthPage,
 });
 

@@ -31,6 +31,24 @@ const exercisesQO = queryOptions({
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  head: ({ params }) => {
+    const area = areaName(params.areaId);
+    const desc = `מכשירי האימון באזור ${area} — נהל משקל, חזרות וסטים והתחל אימון עם טיימר מנוחה אוטומטי.`;
+    const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}`;
+    return {
+      meta: [
+        { title: `${area} — מכשירי אימון` },
+        { name: "description", content: desc },
+        { property: "og:title", content: `${area} — מכשירי אימון` },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        { name: "twitter:title", content: `${area} — מכשירי אימון` },
+        { name: "twitter:description", content: desc },
+        { name: "robots", content: "noindex" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: AreaPage,
 });
 
@@ -75,6 +93,7 @@ function AreaPage() {
             to="/areas"
             className="grid size-10 shrink-0 place-items-center rounded-xl hover:bg-muted"
             title="חזרה"
+            aria-label="חזרה לאזורי האימון"
           >
             <ArrowRight className="size-5" />
           </Link>
@@ -152,6 +171,7 @@ function ExerciseCard({
           onClick={onEdit}
           className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
           title="ערוך"
+          aria-label={`ערוך את ${ex.name}`}
         >
           <Pencil className="size-4" />
         </button>
