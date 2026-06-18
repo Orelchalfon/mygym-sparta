@@ -1,12 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { listExercises, resetDay } from "@/lib/workout.functions";
+import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { listExercises } from "@/lib/workout.functions";
 import { AREAS } from "@/lib/workout.constants";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { LogOut, RotateCcw } from "lucide-react";
-import { toast } from "sonner";
+import { LogOut, Dumbbell } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const exercisesQO = queryOptions({
   queryKey: ["exercises"],
@@ -18,23 +17,18 @@ export const Route = createFileRoute("/_authenticated/areas")({
   component: AreasPage,
 });
 
-function isDoneToday(ex: { completed_sets: number; sets: number; last_completed_date: string | null }) {
-  const today = new Date().toISOString().slice(0, 10);
-  return ex.last_completed_date === today && ex.completed_sets >= ex.sets;
-}
-
 function AreasPage() {
   const { data: exercises } = useSuspenseQuery(exercisesQO);
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const resetFn = useServerFn(resetDay);
-  const reset = useMutation({
-    mutationFn: () => resetFn(),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["exercises"] });
-      toast.success("היום אופס");
-    },
-  });
+  const [name, setName] = useState<string>("");
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      const meta = data.user?.user_metadata as { full_name?: string } | undefined;
+      setName(meta?.full_name || data.user?.email?.split("@")[0] || "");
+    });
+  }, []);
 
   async function signOut() {
     await qc.cancelQueries();
@@ -43,55 +37,68 @@ function AreasPage() {
     navigate({ to: "/auth", replace: true });
   }
 
+  const totalMachines = exercises.length;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="flex items-center justify-between px-5 py-4 border-b border-border">
-        <h1 className="text-2xl font-bold tracking-tight">האימון שלי</h1>
-        <div className="flex gap-2">
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+              <Dumbbell className="size-5" />
+            </div>
+            <div className="min-w-0">
+              <div className="truncate text-base font-bold leading-tight sm:text-lg">
+                שלום{name ? `, ${name}` : ""} 👋
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {totalMachines} מכשירים זמינים
+              </div>
+            </div>
+          </div>
           <Button
             size="icon"
             variant="ghost"
-            onClick={() => reset.mutate()}
-            disabled={reset.isPending}
-            title="אפס יום"
+            onClick={signOut}
+            title="התנתק"
+            className="shrink-0"
           >
-            <RotateCcw className="size-5" />
-          </Button>
-          <Button size="icon" variant="ghost" onClick={signOut} title="התנתק">
             <LogOut className="size-5" />
           </Button>
         </div>
       </header>
 
-      <div className="p-5 grid grid-cols-2 gap-4">
-        {AREAS.map((area) => {
-          const list = exercises.filter((e) => e.area === area.id);
-          const done = list.filter(isDoneToday).length;
-          const total = list.length;
-          const allDone = total > 0 && done === total;
-          return (
-            <Link
-              key={area.id}
-              to="/areas/$areaId"
-              params={{ areaId: area.id }}
-              className={`relative rounded-2xl p-5 border transition-all active:scale-95 ${
-                allDone
-                  ? "bg-emerald-500/10 border-emerald-500/40"
-                  : "bg-card border-border hover:border-primary/50"
-              }`}
-            >
-              <div className="text-3xl mb-2">{area.emoji}</div>
-              <div className="text-lg font-bold">{area.name}</div>
-              <div className="text-sm text-muted-foreground mt-1">
-                {total === 0 ? "אין מכשירים" : `${done}/${total} הושלמו`}
-              </div>
-              {allDone && (
-                <div className="absolute top-3 left-3 text-emerald-400 text-xl">✓</div>
-              )}
-            </Link>
-          );
-        })}
-      </div>
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+        <div className="mb-5 flex items-baseline justify-between">
+          <h2 className="text-xl font-bold tracking-tight sm:text-2xl">בחר אזור אימון</h2>
+          <span className="text-xs text-muted-foreground">
+            {AREAS.length} אזורים
+          </span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
+          {AREAS.map((area) => {
+            const count = exercises.filter((e) => e.area === area.id).length;
+            return (
+              <Link
+                key={area.id}
+                to="/areas/$areaId"
+                params={{ areaId: area.id }}
+                className="group relative overflow-hidden rounded-2xl border border-border bg-card p-4 transition-all hover:border-primary/60 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary/10 active:scale-[0.98] sm:p-5"
+              >
+                <div className="pointer-events-none absolute -right-6 -top-6 size-24 rounded-full bg-primary/5 transition-all group-hover:bg-primary/10" />
+                <div className="relative">
+                  <div className="text-3xl sm:text-4xl">{area.emoji}</div>
+                  <div className="mt-3 text-base font-bold sm:text-lg">{area.name}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">
+                    {count === 0 ? "אין מכשירים" : `${count} מכשירים`}
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </main>
     </div>
   );
 }

@@ -127,24 +127,17 @@ export const completeSet = createServerFn({ method: "POST" })
     if (!ex) throw new Error("not found");
 
     const isToday = ex.last_completed_date === today;
-    const next = Math.min((isToday ? ex.completed_sets : 0) + 1, ex.sets);
+    const next = (isToday ? ex.completed_sets : 0) + 1;
+    const finished = next >= ex.sets;
+
+    // When all sets are done, reset the counter so the user can do another round
+    const newCompleted = finished ? 0 : next;
+    const newDate = finished ? null : today;
 
     const { error: e2 } = await supabase
       .from("exercises")
-      .update({ completed_sets: next, last_completed_date: today })
+      .update({ completed_sets: newCompleted, last_completed_date: newDate })
       .eq("id", data.id);
     if (e2) throw new Error(e2.message);
-    return { completed_sets: next, sets: ex.sets };
-  });
-
-export const resetDay = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { error } = await supabase
-      .from("exercises")
-      .update({ completed_sets: 0, last_completed_date: null })
-      .eq("user_id", userId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    return { completed_sets: newCompleted, sets: ex.sets, finished };
   });
