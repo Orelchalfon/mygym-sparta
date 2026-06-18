@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import {
   getSpotifyAccessToken,
   disconnectSpotify,
+  getSpotifyClientId,
 } from "@/lib/spotify.functions";
 import { beginSpotifyLogin } from "@/lib/spotify-pkce";
 
@@ -140,7 +141,9 @@ export function SpotifyPlayer() {
 
   const handleConnect = async () => {
     try {
-      await beginSpotifyLogin();
+      const { clientId } = await getSpotifyClientId();
+      if (!clientId) throw new Error("Spotify not configured");
+      await beginSpotifyLogin(clientId);
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to start Spotify login");
     }

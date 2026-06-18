@@ -36,13 +36,8 @@ export function getRedirectUri(): string {
   return `${window.location.origin}/spotify/callback`;
 }
 
-export async function beginSpotifyLogin(): Promise<void> {
-  const clientId = import.meta.env.VITE_SPOTIFY_CLIENT_ID as string | undefined;
-  if (!clientId) {
-    throw new Error(
-      "Missing VITE_SPOTIFY_CLIENT_ID. Add it to your environment.",
-    );
-  }
+export async function beginSpotifyLogin(clientId: string): Promise<void> {
+  if (!clientId) throw new Error("Missing Spotify client ID");
   const verifier = generateVerifier();
   const challenge = await challengeFromVerifier(verifier);
   sessionStorage.setItem("spotify_pkce_verifier", verifier);

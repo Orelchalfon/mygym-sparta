@@ -1,6 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+export const getSpotifyClientId = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async () => {
+    return { clientId: process.env.SPOTIFY_CLIENT_ID ?? null };
+  });
+
 type TokenResponse = {
   access_token: string;
   refresh_token?: string;
