@@ -13,6 +13,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SpotifyCallbackRouteImport } from './routes/spotify.callback'
 import { Route as AuthenticatedAreasRouteImport } from './routes/_authenticated/areas'
 import { Route as AuthenticatedAreasIndexRouteImport } from './routes/_authenticated/areas.index'
 import { Route as AuthenticatedAreasAreaIdRouteImport } from './routes/_authenticated/areas.$areaId'
@@ -36,6 +37,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SpotifyCallbackRoute = SpotifyCallbackRouteImport.update({
+  id: '/spotify/callback',
+  path: '/spotify/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAreasRoute = AuthenticatedAreasRouteImport.update({
@@ -72,6 +78,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/areas': typeof AuthenticatedAreasRouteWithChildren
+  '/spotify/callback': typeof SpotifyCallbackRoute
   '/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
   '/areas/': typeof AuthenticatedAreasIndexRoute
   '/areas/$areaId/': typeof AuthenticatedAreasAreaIdIndexRoute
@@ -81,6 +88,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/spotify/callback': typeof SpotifyCallbackRoute
   '/areas': typeof AuthenticatedAreasIndexRoute
   '/areas/$areaId': typeof AuthenticatedAreasAreaIdIndexRoute
   '/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/areas': typeof AuthenticatedAreasRouteWithChildren
+  '/spotify/callback': typeof SpotifyCallbackRoute
   '/_authenticated/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
   '/_authenticated/areas/': typeof AuthenticatedAreasIndexRoute
   '/_authenticated/areas/$areaId/': typeof AuthenticatedAreasAreaIdIndexRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/areas'
+    | '/spotify/callback'
     | '/areas/$areaId'
     | '/areas/'
     | '/areas/$areaId/'
@@ -113,6 +123,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/sitemap.xml'
+    | '/spotify/callback'
     | '/areas'
     | '/areas/$areaId'
     | '/areas/$areaId/exercise/$exerciseId'
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/areas'
+    | '/spotify/callback'
     | '/_authenticated/areas/$areaId'
     | '/_authenticated/areas/'
     | '/_authenticated/areas/$areaId/'
@@ -134,6 +146,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  SpotifyCallbackRoute: typeof SpotifyCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/spotify/callback': {
+      id: '/spotify/callback'
+      path: '/spotify/callback'
+      fullPath: '/spotify/callback'
+      preLoaderRoute: typeof SpotifyCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/areas': {
@@ -250,17 +270,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
+  SpotifyCallbackRoute: SpotifyCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
