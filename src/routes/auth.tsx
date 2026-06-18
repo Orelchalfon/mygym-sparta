@@ -42,7 +42,7 @@ function AuthPage() {
       }
       navigate({ to: "/areas" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "אירעה שגיאה");
+      toast.error(getErrorMessage(err));
     } finally {
       setLoading(false);
     }
