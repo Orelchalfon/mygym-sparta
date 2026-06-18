@@ -28,29 +28,6 @@ const exercisesQO = queryOptions({
   queryFn: () => listExercises(),
 });
 
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  return (
-    <div className="space-y-1">
-      <Label>{label}</Label>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        inputMode={type === "number" ? "decimal" : undefined}
-      />
-    </div>
-  );
-}
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
