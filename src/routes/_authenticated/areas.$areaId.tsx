@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { queryOptions, useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -19,7 +19,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { ArrowLeft, ChevronLeft, Pencil, Plus, Play, Trash2 } from "lucide-react";
+import { ArrowRight, Pencil, Plus, Play, Trash2, Dumbbell } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -33,136 +33,119 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId")({
   component: AreaPage,
 });
 
-function todayDone(ex: Exercise) {
-  const today = new Date().toISOString().slice(0, 10);
-  return ex.last_completed_date === today
-    ? ex.completed_sets
-    : 0;
-}
-
 function AreaPage() {
   const { areaId } = Route.useParams();
   const { data: all } = useSuspenseQuery(exercisesQO);
   const list = all.filter((e) => e.area === areaId);
 
-  const [expanded, setExpanded] = useState<string | null>(null);
   const [editing, setEditing] = useState<Exercise | null>(null);
   const [adding, setAdding] = useState(false);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="flex items-center gap-3 px-5 py-4 border-b border-border sticky top-0 bg-background z-10">
-        <Link to="/areas" className="p-2 -mr-2">
-          <ArrowLeft className="size-6 rotate-180" />
-        </Link>
-        <h1 className="text-xl font-bold flex-1">{areaName(areaId)}</h1>
-        <Button size="icon" variant="ghost" onClick={() => setAdding(true)}>
-          <Plus className="size-5" />
-        </Button>
+      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-4 sm:px-6">
+          <Link
+            to="/areas"
+            className="grid size-10 shrink-0 place-items-center rounded-xl hover:bg-muted"
+            title="חזרה"
+          >
+            <ArrowRight className="size-5" />
+          </Link>
+          <div className="min-w-0 flex-1">
+            <div className="text-xs text-muted-foreground">אזור אימון</div>
+            <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">
+              {areaName(areaId)}
+            </h1>
+          </div>
+          <Button
+            onClick={() => setAdding(true)}
+            className="shrink-0 gap-1.5 rounded-xl"
+            size="sm"
+          >
+            <Plus className="size-4" />
+            <span className="hidden sm:inline">מכשיר חדש</span>
+          </Button>
+        </div>
       </header>
 
-      <div className="p-4 space-y-3">
-        {list.length === 0 && (
-          <div className="text-center text-muted-foreground py-12">
-            עוד אין מכשירים. הוסף אחד עם +
+      <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
+        {list.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/40 px-6 py-16 text-center">
+            <div className="grid size-16 place-items-center rounded-2xl bg-muted">
+              <Dumbbell className="size-8 text-muted-foreground" />
+            </div>
+            <p className="mt-4 text-base font-semibold">אין מכשירים באזור זה</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              הוסף את המכשיר הראשון שלך כדי להתחיל
+            </p>
+            <Button onClick={() => setAdding(true)} className="mt-5 gap-1.5">
+              <Plus className="size-4" />
+              הוסף מכשיר
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+            {list.map((ex) => (
+              <ExerciseCard
+                key={ex.id}
+                ex={ex}
+                areaId={areaId}
+                onEdit={() => setEditing(ex)}
+              />
+            ))}
           </div>
         )}
-        {list.map((ex) => {
-          const done = todayDone(ex);
-          const remaining = Math.max(0, ex.sets - done);
-          const isOpen = expanded === ex.id;
-          const finished = remaining === 0;
-          return (
-            <div
-              key={ex.id}
-              className={`rounded-2xl border p-4 transition-all ${
-                finished
-                  ? "bg-emerald-500/10 border-emerald-500/40"
-                  : "bg-card border-border"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-lg font-bold">{ex.name}</div>
-                  {!isOpen && !finished && (
-                    <div className="text-xs text-muted-foreground mt-1">
-                      {ex.weight} ק"ג · {ex.reps} חזרות · {remaining}/{ex.sets} סטים
-                    </div>
-                  )}
-                  {finished && (
-                    <div className="text-sm text-emerald-400 font-medium mt-1">
-                      ✓ הושלם היום
-                    </div>
-                  )}
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setEditing(ex)}
-                    title="ערוך"
-                  >
-                    <Pencil className="size-4" />
-                  </Button>
-                  {!finished &&
-                    (isOpen ? null : (
-                      <Button
-                        onClick={() => setExpanded(ex.id)}
-                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold"
-                      >
-                        <Play className="size-4 ml-1" />
-                        התחל
-                      </Button>
-                    ))}
-                </div>
-              </div>
+      </main>
 
-              {isOpen && !finished && (
-                <div className="mt-4 pt-4 border-t border-border flex items-center justify-between gap-4">
-                  <div className="grid grid-cols-3 gap-4 flex-1 text-center">
-                    <Stat label="משקל" value={`${ex.weight}`} unit='ק"ג' />
-                    <Stat label="חזרות" value={`${ex.reps}`} />
-                    <Stat label="סטים" value={`${remaining}`} unit={`/${ex.sets}`} />
-                  </div>
-                  <Link
-                    to="/areas/$areaId/exercise/$exerciseId"
-                    params={{ areaId, exerciseId: ex.id }}
-                    className="size-14 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex items-center justify-center shadow-lg shadow-orange-500/30 transition-transform active:scale-95"
-                    title="התחל סט"
-                  >
-                    <ChevronLeft className="size-7" />
-                  </Link>
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      {editing && (
-        <EditDialog
-          exercise={editing}
-          onClose={() => setEditing(null)}
-        />
-      )}
-      {adding && (
-        <AddDialog
-          area={areaId}
-          onClose={() => setAdding(false)}
-        />
-      )}
+      {editing && <EditDialog exercise={editing} onClose={() => setEditing(null)} />}
+      {adding && <AddDialog area={areaId} onClose={() => setAdding(false)} />}
     </div>
   );
 }
 
-function Stat({ label, value, unit }: { label: string; value: string; unit?: string }) {
+function ExerciseCard({
+  ex,
+  areaId,
+  onEdit,
+}: {
+  ex: Exercise;
+  areaId: string;
+  onEdit: () => void;
+}) {
   return (
-    <div>
-      <div className="text-xs text-muted-foreground">{label}</div>
-      <div className="text-2xl font-bold tabular-nums">
-        {value}
-        {unit && <span className="text-sm text-muted-foreground mr-1">{unit}</span>}
+    <div className="group flex flex-col rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="truncate text-lg font-bold">{ex.name}</div>
+          <div className="mt-0.5 text-xs text-muted-foreground">
+            {ex.sets} סטים × {ex.reps} חזרות
+          </div>
+        </div>
+        <button
+          onClick={onEdit}
+          className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+          title="ערוך"
+        >
+          <Pencil className="size-4" />
+        </button>
       </div>
+
+      <div className="my-5 flex items-baseline justify-center gap-1">
+        <span className="text-5xl font-black tabular-nums text-primary">
+          {ex.weight}
+        </span>
+        <span className="text-sm font-semibold text-muted-foreground">ק"ג</span>
+      </div>
+
+      <Link
+        to="/areas/$areaId/exercise/$exerciseId"
+        params={{ areaId, exerciseId: ex.id }}
+        className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:brightness-110 active:scale-[0.98]"
+      >
+        <Play className="size-4 fill-current" />
+        התחל אימון
+      </Link>
     </div>
   );
 }
