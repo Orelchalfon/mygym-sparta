@@ -15,6 +15,24 @@ const exercisesQO = queryOptions({
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$exerciseId")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  head: ({ params }) => {
+    const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}/exercise/${params.exerciseId}`;
+    const title = "אימון פעיל — אימון אישי";
+    const desc = "בצע סטים, עקוב אחר התקדמות והפעל טיימר מנוחה אוטומטי בין סטים.";
+    return {
+      meta: [
+        { title },
+        { name: "description", content: desc },
+        { property: "og:title", content: title },
+        { property: "og:description", content: desc },
+        { property: "og:url", content: url },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: desc },
+        { name: "robots", content: "noindex" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ExercisePage,
 });
 
