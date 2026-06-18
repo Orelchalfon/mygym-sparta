@@ -145,6 +145,38 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
     return { accessToken: tokens.access_token };
   });
 
+export const transferSpotifyPlayback = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: { deviceId: string; play?: boolean }) => data)
+  .handler(async ({ data, context }) => {
+    const { data: row, error } = await context.supabase
+      .from("user_spotify_tokens")
+      .select("access_token")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!row?.access_token) throw new Error("Not connected to Spotify");
+
+    const res = await fetch("https://api.spotify.com/v1/me/player", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${row.access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        device_ids: [data.deviceId],
+        play: data.play ?? false,
+      }),
+    });
+
+    if (!res.ok && res.status !== 204) {
+      const text = await res.text();
+      console.error("Spotify transfer failed", res.status, text);
+      return { ok: false, status: res.status };
+    }
+    return { ok: true, status: res.status };
+  });
+
 export const disconnectSpotify = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
