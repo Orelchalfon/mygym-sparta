@@ -93,6 +93,7 @@ function AreaPage() {
             to="/areas"
             className="grid size-10 shrink-0 place-items-center rounded-xl hover:bg-muted"
             title="חזרה"
+            aria-label="חזרה לאזורי האימון"
           >
             <ArrowRight className="size-5" />
           </Link>
