@@ -14,7 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      exercises: {
+        Row: {
+          area: string
+          completed_sets: number
+          created_at: string
+          id: string
+          last_completed_date: string | null
+          name: string
+          reps: number
+          sets: number
+          sort_order: number
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          area: string
+          completed_sets?: number
+          created_at?: string
+          id?: string
+          last_completed_date?: string | null
+          name: string
+          reps?: number
+          sets?: number
+          sort_order?: number
+          user_id: string
+          weight?: number
+        }
+        Update: {
+          area?: string
+          completed_sets?: number
+          created_at?: string
+          id?: string
+          last_completed_date?: string | null
+          name?: string
+          reps?: number
+          sets?: number
+          sort_order?: number
+          user_id?: string
+          weight?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
