@@ -171,6 +171,7 @@ function ExerciseCard({
           onClick={onEdit}
           className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
           title="ערוך"
+          aria-label={`ערוך את ${ex.name}`}
         >
           <Pencil className="size-4" />
         </button>
