@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dumbbell, LogIn, UserPlus, Mail, Lock, User } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -16,6 +17,7 @@ function AuthPage() {
   const [mode, setMode] = useState<"in" | "up">("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -29,13 +31,21 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "up") {
+        if (!fullName.trim()) {
+          toast.error("אנא הזן את שמך המלא");
+          setLoading(false);
+          return;
+        }
         const { error } = await supabase.auth.signUp({
           email,
           password,
-          options: { emailRedirectTo: window.location.origin },
+          options: {
+            emailRedirectTo: window.location.origin,
+            data: { full_name: fullName.trim() },
+          },
         });
         if (error) throw error;
-        toast.success("נרשמת בהצלחה");
+        toast.success("נרשמת בהצלחה! ברוך הבא 💪");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -48,49 +58,160 @@ function AuthPage() {
     }
   }
 
+  const isSignUp = mode === "up";
+
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-background">
-      <div className="w-full max-w-sm space-y-6 bg-card border border-border rounded-2xl p-8 shadow-2xl">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold tracking-tight">אימון אישי</h1>
-          <p className="text-sm text-muted-foreground mt-2">
-            {mode === "in" ? "התחבר כדי להתחיל" : "צור חשבון חדש"}
+    <div className="min-h-screen flex items-center justify-center px-4 py-10 bg-background relative overflow-hidden">
+      {/* background glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-32 left-1/2 size-[28rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute -bottom-32 right-10 size-72 rounded-full bg-primary/10 blur-3xl" />
+      </div>
+
+      <div className="relative w-full max-w-md">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <div className="grid size-14 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/30">
+            <Dumbbell className="size-7" />
+          </div>
+          <h1 className="mt-4 text-3xl font-black tracking-tight">אימון אישי</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            עקוב, בצע ושפר את האימונים שלך
           </p>
         </div>
-        <form onSubmit={onSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">אימייל</Label>
-            <Input
-              id="email"
-              type="email"
-              dir="ltr"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+
+        <div className="rounded-3xl border border-border bg-card/80 p-6 shadow-2xl backdrop-blur sm:p-8">
+          {/* Mode tabs */}
+          <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl bg-muted/60 p-1">
+            <button
+              type="button"
+              onClick={() => setMode("in")}
+              className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all ${
+                !isSignUp
+                  ? "bg-background text-foreground shadow"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <LogIn className="size-4" />
+              התחברות
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode("up")}
+              className={`flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-bold transition-all ${
+                isSignUp
+                  ? "bg-background text-foreground shadow"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <UserPlus className="size-4" />
+              הרשמה
+            </button>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">סיסמה</Label>
-            <Input
-              id="password"
-              type="password"
-              dir="ltr"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
+
+          <div className="mb-5">
+            <h2 className="text-xl font-bold">
+              {isSignUp ? "יצירת חשבון חדש" : "ברוך שובך"}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {isSignUp
+                ? "מלא את הפרטים כדי להתחיל להתאמן"
+                : "הזן את פרטי הכניסה שלך כדי להמשיך"}
+            </p>
           </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "..." : mode === "in" ? "התחבר" : "הירשם"}
-          </Button>
-        </form>
-        <button
-          onClick={() => setMode(mode === "in" ? "up" : "in")}
-          className="w-full text-sm text-muted-foreground hover:text-foreground"
-        >
-          {mode === "in" ? "אין לך חשבון? הירשם" : "כבר רשום? התחבר"}
-        </button>
+
+          <form onSubmit={onSubmit} className="space-y-4">
+            {isSignUp && (
+              <FieldRow icon={<User className="size-4" />} htmlFor="fullName" label="שם מלא">
+                <Input
+                  id="fullName"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="ישראל ישראלי"
+                  required
+                  autoComplete="name"
+                  maxLength={60}
+                  className="ps-10"
+                />
+              </FieldRow>
+            )}
+            <FieldRow icon={<Mail className="size-4" />} htmlFor="email" label="אימייל">
+              <Input
+                id="email"
+                type="email"
+                dir="ltr"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                autoComplete="email"
+                className="ps-10"
+              />
+            </FieldRow>
+            <FieldRow icon={<Lock className="size-4" />} htmlFor="password" label="סיסמה">
+              <Input
+                id="password"
+                type="password"
+                dir="ltr"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder={isSignUp ? "לפחות 6 תווים" : "הסיסמה שלך"}
+                required
+                minLength={6}
+                autoComplete={isSignUp ? "new-password" : "current-password"}
+                className="ps-10"
+              />
+            </FieldRow>
+
+            <Button
+              type="submit"
+              className="h-12 w-full text-base font-bold shadow-lg shadow-primary/20"
+              disabled={loading}
+            >
+              {loading
+                ? "..."
+                : isSignUp
+                ? "צור חשבון והתחל להתאמן"
+                : "התחבר לחשבון שלי"}
+            </Button>
+          </form>
+
+          <p className="mt-5 text-center text-sm text-muted-foreground">
+            {isSignUp ? "כבר יש לך חשבון?" : "אין לך חשבון עדיין?"}{" "}
+            <button
+              onClick={() => setMode(isSignUp ? "in" : "up")}
+              className="font-bold text-primary hover:underline"
+            >
+              {isSignUp ? "התחבר כאן" : "הירשם עכשיו"}
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FieldRow({
+  icon,
+  htmlFor,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  htmlFor: string;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label htmlFor={htmlFor} className="text-xs font-semibold">
+        {label}
+      </Label>
+      <div className="relative">
+        <span className="pointer-events-none absolute inset-y-0 start-3 flex items-center text-muted-foreground">
+          {icon}
+        </span>
+        {children}
       </div>
     </div>
   );
