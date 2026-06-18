@@ -93,5 +93,27 @@ function AuthPage() {
         </button>
       </div>
     </div>
-  );
+}
+
+function getErrorMessage(err: unknown): string {
+  const msg = err instanceof Error ? err.message : "";
+  if (msg.includes("Invalid login credentials")) {
+    return "האימייל או הסיסמה שגויים. אנא בדוק שוב ונסה להתחבר.";
+  }
+  if (msg.includes("Email not confirmed")) {
+    return "האימייל עוד לא אושר. אנא בדוק את תיבת הדואר שלך לקבלת קישור אימות.";
+  }
+  if (msg.includes("User already registered")) {
+    return "המשתמש כבר רשום. נסה להתחבר במקום להרשם.";
+  }
+  if (msg.includes("Password should be at least")) {
+    return "הסיסמה קצרה מדי. יש לבחור סיסמה באורך של לפחות 6 תווים.";
+  }
+  if (msg.includes("Unable to validate email address")) {
+    return "כתובת האימייל אינה תקינה. אנא בדוק והזן שוב.";
+  }
+  if (msg.includes("weak_password")) {
+    return "הסיסמה חלשה מדי. נסה לבחור סיסמה חזקה יותר.";
+  }
+  return "אירעה שגיאה בלתי צפויה. אנא נסה שוב מאוחר יותר.";
 }
