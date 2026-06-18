@@ -14,6 +14,19 @@ const exercisesQO = queryOptions({
 
 export const Route = createFileRoute("/_authenticated/areas/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  head: () => ({
+    meta: [
+      { title: "אזורי אימון — אימון אישי" },
+      { name: "description", content: "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור." },
+      { property: "og:title", content: "אזורי אימון — אימון אישי" },
+      { property: "og:description", content: "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור." },
+      { property: "og:url", content: "https://mygym-sparta.lovable.app/areas" },
+      { name: "twitter:title", content: "אזורי אימון — אימון אישי" },
+      { name: "twitter:description", content: "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור." },
+      { name: "robots", content: "noindex" },
+    ],
+    links: [{ rel: "canonical", href: "https://mygym-sparta.lovable.app/areas" }],
+  }),
   component: AreasPage,
 });
 
