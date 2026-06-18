@@ -9,38 +9,115 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedAreasRouteImport } from './routes/_authenticated/areas'
+import { Route as AuthenticatedAreasAreaIdRouteImport } from './routes/_authenticated/areas.$areaId'
+import { Route as AuthenticatedAreasAreaIdExerciseExerciseIdRouteImport } from './routes/_authenticated/areas.$areaId.exercise.$exerciseId'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedAreasRoute = AuthenticatedAreasRouteImport.update({
+  id: '/areas',
+  path: '/areas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAreasAreaIdRoute =
+  AuthenticatedAreasAreaIdRouteImport.update({
+    id: '/$areaId',
+    path: '/$areaId',
+    getParentRoute: () => AuthenticatedAreasRoute,
+  } as any)
+const AuthenticatedAreasAreaIdExerciseExerciseIdRoute =
+  AuthenticatedAreasAreaIdExerciseExerciseIdRouteImport.update({
+    id: '/exercise/$exerciseId',
+    path: '/exercise/$exerciseId',
+    getParentRoute: () => AuthenticatedAreasAreaIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/areas': typeof AuthenticatedAreasRouteWithChildren
+  '/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
+  '/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/areas': typeof AuthenticatedAreasRouteWithChildren
+  '/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
+  '/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/areas': typeof AuthenticatedAreasRouteWithChildren
+  '/_authenticated/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
+  '/_authenticated/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/areas'
+    | '/areas/$areaId'
+    | '/areas/$areaId/exercise/$exerciseId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/areas'
+    | '/areas/$areaId'
+    | '/areas/$areaId/exercise/$exerciseId'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/areas'
+    | '/_authenticated/areas/$areaId'
+    | '/_authenticated/areas/$areaId/exercise/$exerciseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +125,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/areas': {
+      id: '/_authenticated/areas'
+      path: '/areas'
+      fullPath: '/areas'
+      preLoaderRoute: typeof AuthenticatedAreasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/areas/$areaId': {
+      id: '/_authenticated/areas/$areaId'
+      path: '/$areaId'
+      fullPath: '/areas/$areaId'
+      preLoaderRoute: typeof AuthenticatedAreasAreaIdRouteImport
+      parentRoute: typeof AuthenticatedAreasRoute
+    }
+    '/_authenticated/areas/$areaId/exercise/$exerciseId': {
+      id: '/_authenticated/areas/$areaId/exercise/$exerciseId'
+      path: '/exercise/$exerciseId'
+      fullPath: '/areas/$areaId/exercise/$exerciseId'
+      preLoaderRoute: typeof AuthenticatedAreasAreaIdExerciseExerciseIdRouteImport
+      parentRoute: typeof AuthenticatedAreasAreaIdRoute
+    }
   }
 }
 
+interface AuthenticatedAreasAreaIdRouteChildren {
+  AuthenticatedAreasAreaIdExerciseExerciseIdRoute: typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
+}
+
+const AuthenticatedAreasAreaIdRouteChildren: AuthenticatedAreasAreaIdRouteChildren =
+  {
+    AuthenticatedAreasAreaIdExerciseExerciseIdRoute:
+      AuthenticatedAreasAreaIdExerciseExerciseIdRoute,
+  }
+
+const AuthenticatedAreasAreaIdRouteWithChildren =
+  AuthenticatedAreasAreaIdRoute._addFileChildren(
+    AuthenticatedAreasAreaIdRouteChildren,
+  )
+
+interface AuthenticatedAreasRouteChildren {
+  AuthenticatedAreasAreaIdRoute: typeof AuthenticatedAreasAreaIdRouteWithChildren
+}
+
+const AuthenticatedAreasRouteChildren: AuthenticatedAreasRouteChildren = {
+  AuthenticatedAreasAreaIdRoute: AuthenticatedAreasAreaIdRouteWithChildren,
+}
+
+const AuthenticatedAreasRouteWithChildren =
+  AuthenticatedAreasRoute._addFileChildren(AuthenticatedAreasRouteChildren)
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAreasRoute: typeof AuthenticatedAreasRouteWithChildren
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAreasRoute: AuthenticatedAreasRouteWithChildren,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
