@@ -190,6 +190,7 @@ function ExercisePage() {
             onClick={exit}
             className="grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
             title="צא"
+            aria-label="סגור והחזור לאזור האימון"
           >
             <X className="size-5" />
           </button>
