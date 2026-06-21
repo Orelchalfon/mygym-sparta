@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dumbbell, MapPin, Clock, Phone, Users, Flame } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import heroImage from "@/assets/sparta-hero.jpg";
 
 const SITE_URL = "https://mygym-sparta.lovable.app";
