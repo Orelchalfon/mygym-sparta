@@ -1,0 +1,11 @@
+[build]
+  command = "pnpm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Nitro's `netlify` preset emits the SSR catch-all into
+# `.netlify/functions-internal/server` (auto-detected as an internal function)
+# and the static client into `dist`. The function declares `path = "/*"` with
+# `preferStatic: true`, so static assets win and every other route is SSR'd.
