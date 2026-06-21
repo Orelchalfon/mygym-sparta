@@ -167,7 +167,7 @@ function LandingPage() {
       </section>
 
       {/* About */}
-      <section className="container mx-auto px-6 py-20 max-w-5xl">
+      <section id="about" className="container mx-auto px-6 py-20 max-w-5xl">
         <h2 className="text-4xl md:text-5xl font-black mb-6">מכון הכושר שלנו</h2>
         <p className="text-lg text-muted-foreground leading-relaxed max-w-3xl">
           ספרטא הוא מכון כושר בשומרון, ממוקם בלב אבני חפץ, ומציע סביבת אימון
