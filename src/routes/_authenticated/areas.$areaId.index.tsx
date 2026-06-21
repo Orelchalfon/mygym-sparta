@@ -20,6 +20,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { ArrowRight, Pencil, Plus, Play, Trash2, Dumbbell } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -103,14 +104,17 @@ function AreaPage() {
               {areaName(areaId)}
             </h1>
           </div>
-          <Button
-            onClick={() => setAdding(true)}
-            className="shrink-0 gap-1.5 rounded-xl"
-            size="sm"
-          >
-            <Plus className="size-4" />
-            <span className="hidden sm:inline">מכשיר חדש</span>
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button
+              onClick={() => setAdding(true)}
+              className="shrink-0 gap-1.5 rounded-xl"
+              size="sm"
+            >
+              <Plus className="size-4" />
+              <span className="hidden sm:inline">מכשיר חדש</span>
+            </Button>
+          </div>
         </div>
       </header>
 
