@@ -105,22 +105,10 @@ function LandingPage() {
     <div className="min-h-screen bg-background text-foreground" dir="rtl">
       <Header
         links={navLinks}
+        transparentOnTop
         onSignIn={() => navigate({ to: "/auth" })}
         onGetStarted={() => navigate({ to: "/auth" })}
-        actions={
-          <>
-            <ThemeToggle />
-            <Button variant="ghost" onClick={() => navigate({ to: "/auth" })}>
-              התחברות
-            </Button>
-            <Button
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => navigate({ to: "/auth" })}
-            >
-              התחל עכשיו
-            </Button>
-          </>
-        }
+        leadingActions={<ThemeToggle />}
       />
 
       {/* Hero */}
