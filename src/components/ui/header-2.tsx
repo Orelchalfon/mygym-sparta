@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, useReducedMotion, type Variants } from 'motion/react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
@@ -6,6 +7,15 @@ import { useScroll } from '@/components/ui/use-scroll';
 import { Dumbbell } from 'lucide-react';
 
 type NavLink = { label: string; href: string };
+
+const navContainer: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07, delayChildren: 0.1 } },
+};
+const navItem: Variants = {
+  hidden: { opacity: 0, y: -8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.16, 1, 0.3, 1] } },
+};
 
 export interface HeaderProps {
   links?: NavLink[];
@@ -40,6 +50,7 @@ export function Header({
   transparentOnTop = false,
 }: HeaderProps) {
   const [open, setOpen] = React.useState(false);
+  const reduce = useReducedMotion();
   const scrolled = useScroll(10);
   const solid = scrolled || open;
   // When over the hero we force light colors regardless of theme.
@@ -65,8 +76,12 @@ export function Header({
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="flex h-16 items-center justify-between">
-          <a
+          <motion.a
             href="/"
+            initial={reduce ? false : { opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            whileHover={reduce ? undefined : { scale: 1.03 }}
             className={cn(
               'flex items-center gap-2 font-bold text-lg transition-colors',
               overHero ? 'text-white' : 'text-foreground',
@@ -83,24 +98,32 @@ export function Header({
                 <span>Sparta Gym</span>
               </>
             )}
-          </a>
+          </motion.a>
 
-          <nav className="hidden md:flex items-center gap-1">
+          <motion.nav
+            className="hidden md:flex items-center gap-1"
+            variants={navContainer}
+            initial="hidden"
+            animate="show"
+          >
             {links.map((link) => (
-              <a
+              <motion.a
                 key={link.label}
                 href={link.href}
+                variants={navItem}
+                whileHover={reduce ? undefined : { y: -2 }}
                 className={cn(
-                  'px-3 py-2 text-sm font-medium transition-colors',
+                  'relative px-3 py-2 text-sm font-medium transition-colors',
+                  'after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-center after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform hover:after:scale-x-100',
                   overHero
                     ? 'text-white/85 hover:text-white'
                     : 'text-foreground/80 hover:text-foreground',
                 )}
               >
                 {link.label}
-              </a>
+              </motion.a>
             ))}
-          </nav>
+          </motion.nav>
 
           <div className="hidden md:flex items-center gap-2">
             {actions ?? (
@@ -142,18 +165,24 @@ export function Header({
               : 'max-h-0 opacity-0 -translate-y-1 pointer-events-none',
           )}
         >
-          <nav className="flex flex-col gap-1 pt-2">
+          <motion.nav
+            className="flex flex-col gap-1 pt-2"
+            variants={navContainer}
+            initial="hidden"
+            animate={open ? 'show' : 'hidden'}
+          >
             {links.map((link) => (
-              <a
+              <motion.a
                 key={link.label}
                 href={link.href}
+                variants={navItem}
                 onClick={() => setOpen(false)}
                 className="px-3 py-2 text-base font-medium text-foreground/80 hover:text-foreground"
               >
                 {link.label}
-              </a>
+              </motion.a>
             ))}
-          </nav>
+          </motion.nav>
           <div className="flex flex-col gap-2 pt-4">
             {actions ?? (
               <>
