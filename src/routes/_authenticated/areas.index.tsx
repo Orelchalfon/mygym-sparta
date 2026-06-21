@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LogOut, Dumbbell } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Header } from "@/components/ui/header-2";
 import { useEffect, useState } from "react";
 
 const exercisesQO = queryOptions({
@@ -55,14 +56,15 @@ function AreasPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 sm:px-6">
+      <Header
+        links={[]}
+        brand={
           <div className="flex min-w-0 items-center gap-3">
-            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+            <div className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
               <Dumbbell className="size-5" />
             </div>
             <div className="min-w-0">
-              <div className="truncate text-base font-bold leading-tight sm:text-lg">
+              <div className="truncate text-sm font-bold leading-tight sm:text-base">
                 שלום{name ? `, ${name}` : ""} 👋
               </div>
               <div className="text-xs text-muted-foreground">
@@ -70,7 +72,9 @@ function AreasPage() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+        }
+        actions={
+          <>
             <ThemeToggle />
             <Button
               size="icon"
@@ -82,11 +86,11 @@ function AreasPage() {
             >
               <LogOut className="size-5" />
             </Button>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto max-w-6xl px-4 pt-20 pb-6 sm:px-6 sm:pt-24 sm:pb-8">
         <h1 className="sr-only">אזורי אימון</h1>
         <div className="mb-5 flex items-baseline justify-between">
           <h2 className="text-xl font-bold tracking-tight sm:text-2xl">בחר אזור אימון</h2>
