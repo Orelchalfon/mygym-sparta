@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dumbbell, MapPin, Clock, Phone, Users, Flame } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import heroImage from "@/assets/sparta-hero.jpg";
 
 const SITE_URL = "https://mygym-sparta.lovable.app";
@@ -106,6 +107,9 @@ function LandingPage() {
           className="absolute inset-0 -z-10 bg-gradient-to-l from-black/90 via-black/70 to-black/50"
           aria-hidden="true"
         />
+        <div className="container mx-auto flex max-w-5xl justify-end px-6 pt-4">
+          <ThemeToggle />
+        </div>
         <div className="container mx-auto px-6 py-24 md:py-36 max-w-5xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-red-600/40 bg-red-600/10 px-4 py-1.5 text-sm text-red-400 mb-6">
             <Flame className="h-4 w-4" />
