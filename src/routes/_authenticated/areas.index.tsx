@@ -5,6 +5,7 @@ import { AREAS } from "@/lib/workout.constants";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LogOut, Dumbbell } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useEffect, useState } from "react";
 
 const exercisesQO = queryOptions({
