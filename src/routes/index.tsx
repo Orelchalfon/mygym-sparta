@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Dumbbell, MapPin, Clock, Phone, Users, Flame } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { Header } from "@/components/ui/header-2";
 import heroImage from "@/assets/sparta-hero.jpg";
 
 const SITE_URL = "https://mygym-sparta.lovable.app";
@@ -94,10 +95,36 @@ function LandingPage() {
     };
   }, [navigate]);
 
+  const navLinks = [
+    { label: "אודות", href: "#about" },
+    { label: "ציוד", href: "#equipment" },
+    { label: "צור קשר", href: "#contact" },
+  ];
+
   return (
     <div className="min-h-screen bg-background text-foreground" dir="rtl">
+      <Header
+        links={navLinks}
+        onSignIn={() => navigate({ to: "/auth" })}
+        onGetStarted={() => navigate({ to: "/auth" })}
+        actions={
+          <>
+            <ThemeToggle />
+            <Button variant="ghost" onClick={() => navigate({ to: "/auth" })}>
+              התחברות
+            </Button>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => navigate({ to: "/auth" })}
+            >
+              התחל עכשיו
+            </Button>
+          </>
+        }
+      />
+
       {/* Hero */}
-      <section className="relative isolate overflow-hidden">
+      <section className="relative isolate overflow-hidden pt-16">
         <div
           className="absolute inset-0 -z-10 bg-cover bg-center"
           style={{ backgroundImage: `url(${heroImage})` }}
@@ -107,9 +134,6 @@ function LandingPage() {
           className="absolute inset-0 -z-10 bg-gradient-to-l from-black/90 via-black/70 to-black/50"
           aria-hidden="true"
         />
-        <div className="container mx-auto flex max-w-5xl justify-end px-6 pt-4">
-          <ThemeToggle />
-        </div>
         <div className="container mx-auto px-6 py-24 md:py-36 max-w-5xl">
           <div className="inline-flex items-center gap-2 rounded-full border border-red-600/40 bg-red-600/10 px-4 py-1.5 text-sm text-red-400 mb-6">
             <Flame className="h-4 w-4" />
@@ -178,7 +202,7 @@ function LandingPage() {
       </section>
 
       {/* Equipment */}
-      <section className="container mx-auto px-6 py-20 max-w-5xl">
+      <section id="equipment" className="container mx-auto px-6 py-20 max-w-5xl">
         <h2 className="text-4xl md:text-5xl font-black mb-10">ציוד ומכשירים</h2>
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
           {[
