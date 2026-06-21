@@ -12,6 +12,8 @@ export interface HeaderProps {
   brand?: React.ReactNode;
   onSignIn?: () => void;
   onGetStarted?: () => void;
+  /** Replaces the default Sign In / Get Started buttons on desktop & mobile. */
+  actions?: React.ReactNode;
 }
 
 const defaultLinks: NavLink[] = [
@@ -25,6 +27,7 @@ export function Header({
   brand,
   onSignIn,
   onGetStarted,
+  actions,
 }: HeaderProps) {
   const [open, setOpen] = React.useState(false);
   const scrolled = useScroll(10);
@@ -69,10 +72,14 @@ export function Header({
           </nav>
 
           <div className="hidden md:flex items-center gap-2">
-            <Button variant="ghost" onClick={onSignIn}>
-              התחברות
-            </Button>
-            <Button onClick={onGetStarted}>התחל עכשיו</Button>
+            {actions ?? (
+              <>
+                <Button variant="ghost" onClick={onSignIn}>
+                  התחברות
+                </Button>
+                <Button onClick={onGetStarted}>התחל עכשיו</Button>
+              </>
+            )}
           </div>
 
           <button
@@ -104,10 +111,14 @@ export function Header({
             ))}
           </nav>
           <div className="flex flex-col gap-2 pt-4">
-            <Button variant="ghost" onClick={onSignIn}>
-              התחברות
-            </Button>
-            <Button onClick={onGetStarted}>התחל עכשיו</Button>
+            {actions ?? (
+              <>
+                <Button variant="ghost" onClick={onSignIn}>
+                  התחברות
+                </Button>
+                <Button onClick={onGetStarted}>התחל עכשיו</Button>
+              </>
+            )}
           </div>
         </div>
       </div>
