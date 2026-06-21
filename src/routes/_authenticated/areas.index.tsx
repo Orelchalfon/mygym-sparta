@@ -70,16 +70,19 @@ function AreasPage() {
               </div>
             </div>
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={signOut}
-            title="התנתק"
-            aria-label="התנתק מהחשבון"
-            className="shrink-0"
-          >
-            <LogOut className="size-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={signOut}
+              title="התנתק"
+              aria-label="התנתק מהחשבון"
+              className="shrink-0"
+            >
+              <LogOut className="size-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
