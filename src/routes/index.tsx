@@ -108,24 +108,7 @@ function LandingPage() {
         transparentOnTop
         onSignIn={() => navigate({ to: "/auth" })}
         onGetStarted={() => navigate({ to: "/auth" })}
-        actions={
-          <>
-            <ThemeToggle />
-            <Button
-              variant="ghost"
-              onClick={() => navigate({ to: "/auth" })}
-              className="text-white hover:bg-white/10 hover:text-white"
-            >
-              התחברות
-            </Button>
-            <Button
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => navigate({ to: "/auth" })}
-            >
-              התחל עכשיו
-            </Button>
-          </>
-        }
+        leadingActions={<ThemeToggle />}
       />
 
       {/* Hero */}
