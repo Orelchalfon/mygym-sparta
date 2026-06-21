@@ -14,6 +14,8 @@ export interface HeaderProps {
   onGetStarted?: () => void;
   /** Replaces the default Sign In / Get Started buttons on desktop & mobile. */
   actions?: React.ReactNode;
+  /** Rendered before the default action buttons (e.g. a ThemeToggle). Ignored when `actions` is set. */
+  leadingActions?: React.ReactNode;
   /**
    * When true, the header is transparent at the top of the page and assumes
    * it's sitting over a dark hero — text/icons are forced to light colors
@@ -34,6 +36,7 @@ export function Header({
   onSignIn,
   onGetStarted,
   actions,
+  leadingActions,
   transparentOnTop = false,
 }: HeaderProps) {
   const [open, setOpen] = React.useState(false);
