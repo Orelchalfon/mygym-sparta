@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { SpotifyPlayer } from "@/components/spotify-player";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_authenticated")({
         <Outlet />
       </div>
       <SpotifyPlayer />
+      <InstallPrompt />
     </>
   ),
 });
