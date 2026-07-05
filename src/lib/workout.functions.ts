@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { SEED_EXERCISES } from "./workout.constants";
+import { SEED_EXERCISES, FACILITY_IMAGES } from "./workout.constants";
 
 export type Exercise = {
   id: string;
@@ -13,6 +13,7 @@ export type Exercise = {
   completed_sets: number;
   last_completed_date: string | null;
   sort_order: number;
+  image_url: string | null;
 };
 
 export const listExercises = createServerFn({ method: "GET" })
@@ -36,14 +37,56 @@ export const listExercises = createServerFn({ method: "GET" })
         reps: e.reps,
         sets: e.sets,
         sort_order: i,
+        image_url: e.image_url ?? null,
       }));
       const ins = await supabase.from("exercises").insert(rows).select("*");
       if (ins.error) throw new Error(ins.error.message);
       data = ins.data;
+    } else {
+      // Backfill: attach known facility photos to existing rows that don't have one yet.
+      const toPatch = (data as Exercise[]).filter(
+        (row) => !row.image_url && FACILITY_IMAGES[row.name],
+      );
+      if (toPatch.length > 0) {
+        await Promise.all(
+          toPatch.map((row) =>
+            supabase
+              .from("exercises")
+              .update({ image_url: FACILITY_IMAGES[row.name] })
+              .eq("id", row.id),
+          ),
+        );
+        // Seed missing new facilities (12, 13, 15) for existing users.
+        const existingNames = new Set((data as Exercise[]).map((r) => r.name));
+        const missing = SEED_EXERCISES.filter(
+          (e) => e.image_url && !existingNames.has(e.name),
+        );
+        if (missing.length > 0) {
+          await supabase.from("exercises").insert(
+            missing.map((e, i) => ({
+              user_id: userId,
+              area: e.area,
+              name: e.name,
+              weight: e.weight,
+              reps: e.reps,
+              sets: e.sets,
+              sort_order: 1000 + i,
+              image_url: e.image_url ?? null,
+            })),
+          );
+        }
+        const refetch = await supabase
+          .from("exercises")
+          .select("*")
+          .order("area", { ascending: true })
+          .order("sort_order", { ascending: true });
+        if (!refetch.error) data = refetch.data;
+      }
     }
 
     return (data ?? []) as Exercise[];
   });
+
 
 export const createExercise = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

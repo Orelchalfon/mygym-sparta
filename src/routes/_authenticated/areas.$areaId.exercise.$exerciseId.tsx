@@ -203,12 +203,23 @@ function ExercisePage() {
 
       <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-8 px-6 py-8">
         {/* Title */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="grid size-14 place-items-center rounded-2xl bg-primary/15 text-primary">
-            <Dumbbell className="size-7" />
-          </div>
+        <div className="flex flex-col items-center gap-3 text-center">
+          {exercise.image_url ? (
+            <div className="relative aspect-[4/3] w-full max-w-md overflow-hidden rounded-3xl border border-border shadow-lg">
+              <img
+                src={exercise.image_url}
+                alt={exercise.name}
+                className="size-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="grid size-14 place-items-center rounded-2xl bg-primary/15 text-primary">
+              <Dumbbell className="size-7" />
+            </div>
+          )}
           <h1 className="text-2xl font-black sm:text-3xl">{exercise.name}</h1>
         </div>
+
 
         {/* Sets progress dots */}
         <div className="flex items-center gap-2">
