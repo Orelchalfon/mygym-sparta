@@ -163,42 +163,55 @@ function ExerciseCard({
   onEdit: () => void;
 }) {
   return (
-    <div className="group flex flex-col rounded-2xl border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <div className="truncate text-lg font-bold">{ex.name}</div>
-          <div className="mt-0.5 text-xs text-muted-foreground">
-            {ex.sets} סטים × {ex.reps} חזרות
-          </div>
+    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+      {ex.image_url ? (
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+          <img
+            src={ex.image_url}
+            alt={ex.name}
+            loading="lazy"
+            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
         </div>
-        <button
-          onClick={onEdit}
-          className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="ערוך"
-          aria-label={`ערוך את ${ex.name}`}
+      ) : null}
+      <div className="flex flex-1 flex-col p-5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <div className="truncate text-lg font-bold">{ex.name}</div>
+            <div className="mt-0.5 text-xs text-muted-foreground">
+              {ex.sets} סטים × {ex.reps} חזרות
+            </div>
+          </div>
+          <button
+            onClick={onEdit}
+            className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+            title="ערוך"
+            aria-label={`ערוך את ${ex.name}`}
+          >
+            <Pencil className="size-4" />
+          </button>
+        </div>
+
+        <div className="my-5 flex items-baseline justify-center gap-1">
+          <span className="text-5xl font-black tabular-nums text-primary">
+            {ex.weight}
+          </span>
+          <span className="text-sm font-semibold text-muted-foreground">ק"ג</span>
+        </div>
+
+        <Link
+          to="/areas/$areaId/exercise/$exerciseId"
+          params={{ areaId, exerciseId: ex.id }}
+          className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:brightness-110 active:scale-[0.98]"
         >
-          <Pencil className="size-4" />
-        </button>
+          <Play className="size-4 fill-current" />
+          התחל אימון
+        </Link>
       </div>
-
-      <div className="my-5 flex items-baseline justify-center gap-1">
-        <span className="text-5xl font-black tabular-nums text-primary">
-          {ex.weight}
-        </span>
-        <span className="text-sm font-semibold text-muted-foreground">ק"ג</span>
-      </div>
-
-      <Link
-        to="/areas/$areaId/exercise/$exerciseId"
-        params={{ areaId, exerciseId: ex.id }}
-        className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:brightness-110 active:scale-[0.98]"
-      >
-        <Play className="size-4 fill-current" />
-        התחל אימון
-      </Link>
     </div>
   );
 }
+
 
 function EditDialog({ exercise, onClose }: { exercise: Exercise; onClose: () => void }) {
   const qc = useQueryClient();
