@@ -39,10 +39,19 @@ function AreasPage() {
   const [name, setName] = useState<string>("");
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      const meta = data.user?.user_metadata as { full_name?: string } | undefined;
-      setName(meta?.full_name || data.user?.email?.split("@")[0] || "");
-    });
+    try {
+      supabase.auth
+        .getUser()
+        .then(({ data }) => {
+          const meta = data.user?.user_metadata as { full_name?: string } | undefined;
+          setName(meta?.full_name || data.user?.email?.split("@")[0] || "");
+        })
+        .catch(() => {
+          setName("");
+        });
+    } catch {
+      setName("");
+    }
   }, []);
 
   async function signOut() {
