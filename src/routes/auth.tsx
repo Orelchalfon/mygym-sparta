@@ -32,9 +32,18 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/areas" });
-    });
+    try {
+      supabase.auth
+        .getUser()
+        .then(({ data }) => {
+          if (data.user) navigate({ to: "/areas" });
+        })
+        .catch(() => {
+          // Leave the sign-in form visible if auth config is temporarily unavailable.
+        });
+    } catch {
+      // Leave the sign-in form visible if auth config is temporarily unavailable.
+    }
   }, [navigate]);
 
   async function onSubmit(e: React.FormEvent) {

@@ -109,11 +109,20 @@ function LandingPage() {
 
   useEffect(() => {
     let mounted = true;
-    supabase.auth.getSession().then(({ data }) => {
-      if (mounted && data.session) {
-        navigate({ to: "/areas" });
-      }
-    });
+    try {
+      supabase.auth
+        .getSession()
+        .then(({ data }) => {
+          if (mounted && data.session) {
+            navigate({ to: "/areas" });
+          }
+        })
+        .catch(() => {
+          // Keep the public landing page available even if auth config is unavailable.
+        });
+    } catch {
+      // Keep the public landing page available even if auth config is unavailable.
+    }
     return () => {
       mounted = false;
     };
