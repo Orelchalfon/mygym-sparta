@@ -37,21 +37,20 @@ export function Hero() {
 
       <div className="mx-auto grid w-full max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-[1.3fr_1fr] lg:gap-10">
         <div>
-          <div
-            className="landing-rise mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-1.5 text-sm text-foreground/80"
-            style={rise(0)}
-          >
-            <span className="size-1.5 rounded-full bg-primary" />
-            מכון כושר · {GYM.location}
-          </div>
-
-          <div className="landing-rise" style={rise(1)}>
-            <h1 className="landing-display">
+          <h1>
+            <span
+              className="landing-rise mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-1.5 text-sm font-normal text-foreground/80"
+              style={rise(0)}
+            >
+              <span className="size-1.5 rounded-full bg-primary" />
+              מכון כושר {GYM.name} · {GYM.location}
+            </span>
+            <span className="landing-rise landing-display block" style={rise(1)}>
               הכוח שלך
               <br />
               <span className="text-primary">מתחיל כאן.</span>
-            </h1>
-          </div>
+            </span>
+          </h1>
 
           <div className="landing-rise" style={rise(2)}>
             <p className="mt-7 max-w-xl text-lg leading-relaxed text-foreground/70 sm:text-xl">
