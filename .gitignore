@@ -32,3 +32,6 @@ dist-ssr
 *.sln
 *.sw?
 *.env
+*.backup
+# Original machine photos/video (converted copies live in src/assets/machines)
+src/assets/images/
