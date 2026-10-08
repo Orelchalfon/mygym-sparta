@@ -20,9 +20,7 @@ function NotFoundComponent() {
       <div className="max-w-md text-center">
         <p className="text-8xl font-black tabular-nums text-primary">404</p>
         <h1 className="mt-4 text-2xl font-bold text-foreground">העמוד לא נמצא</h1>
-        <p className="mt-2 text-muted-foreground">
-          העמוד שחיפשת לא קיים או שהועבר למקום אחר.
-        </p>
+        <p className="mt-2 text-muted-foreground">העמוד שחיפשת לא קיים או שהועבר למקום אחר.</p>
         <div className="mt-8">
           <Link
             to="/"
@@ -78,8 +76,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "מכון כושר ספרטא — אבני חפץ, שומרון | אימונים לגברים ולנשים" },
-      { name: "description", content: "מכון כושר ספרטא באבני חפץ — מכון כושר מוביל בשומרון לגברים ולנשים. ציוד מתקדם, אווירה מקצועית ושעות גמישות." },
-      { name: "keywords", content: "מכון כושר, מכון כושר לגברים, מכון כושר לנשים, מכון כושר בשומרון, מכון כושר אבני חפץ, ספרטא, חדר כושר" },
+      {
+        name: "description",
+        content:
+          "מכון כושר ספרטא באבני חפץ — מכון כושר מוביל בשומרון לגברים ולנשים. ציוד מתקדם, אווירה מקצועית ושעות גמישות.",
+      },
+      {
+        name: "keywords",
+        content:
+          "מכון כושר, מכון כושר לגברים, מכון כושר לנשים, מכון כושר בשומרון, מכון כושר אבני חפץ, ספרטא, חדר כושר",
+      },
       { property: "og:site_name", content: "מכון כושר ספרטא" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -16,7 +16,13 @@ interface MachineImageProps {
  * Machine photo in a fixed-ratio box (callers set the aspect via className) so
  * nothing shifts while it loads. Without a catalog match it renders a brand tile.
  */
-export function MachineImage({ machine, label, className, imgClassName, eager }: MachineImageProps) {
+export function MachineImage({
+  machine,
+  label,
+  className,
+  imgClassName,
+  eager,
+}: MachineImageProps) {
   return (
     <div className={cn("relative overflow-hidden bg-muted", className)}>
       {machine ? (

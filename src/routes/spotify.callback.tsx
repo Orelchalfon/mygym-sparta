@@ -12,7 +12,7 @@ export const Route = createFileRoute("/spotify/callback")({
 function SpotifyCallback() {
   const navigate = useNavigate();
   const exchange = useServerFn(exchangeSpotifyCode);
-  const [status, setStatus] = useState("Connecting to Spotify…");
+  const [status, setStatus] = useState("מתחבר לספוטיפיי…");
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -21,12 +21,12 @@ function SpotifyCallback() {
     const verifier = sessionStorage.getItem("spotify_pkce_verifier");
 
     if (error) {
-      setStatus(`Spotify error: ${error}`);
+      setStatus("החיבור לספוטיפיי בוטל");
       setTimeout(() => navigate({ to: "/areas" }), 1500);
       return;
     }
     if (!code || !verifier) {
-      setStatus("Missing authorization code");
+      setStatus("חסר קוד הרשאה מספוטיפיי");
       setTimeout(() => navigate({ to: "/areas" }), 1500);
       return;
     }
@@ -36,18 +36,18 @@ function SpotifyCallback() {
     })
       .then(() => {
         sessionStorage.removeItem("spotify_pkce_verifier");
-        setStatus("Connected! Redirecting…");
+        setStatus("מחובר! מעביר…");
         navigate({ to: "/areas" });
       })
       .catch((e) => {
         console.error(e);
-        setStatus("Failed to connect Spotify");
+        setStatus("החיבור לספוטיפיי נכשל");
         setTimeout(() => navigate({ to: "/areas" }), 2000);
       });
   }, [exchange, navigate]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
+    <div className="flex min-h-dvh items-center justify-center bg-background">
       <p className="text-foreground">{status}</p>
     </div>
   );

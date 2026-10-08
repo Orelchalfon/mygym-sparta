@@ -3,10 +3,13 @@ import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-
 import { useServerFn } from "@tanstack/react-start";
 import { listExercises, completeSet } from "@/lib/workout.functions";
 import { REST_SECONDS } from "@/lib/workout.constants";
-import { useEffect, useRef, useState } from "react";
+import { getMachine } from "@/lib/machines";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { X, Check, SkipForward, Dumbbell, Repeat } from "lucide-react";
+import { MachineImage } from "@/components/machine-image";
+import { X, Check, SkipForward, Repeat, Plus, Loader2, Trophy } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const exercisesQO = queryOptions({
   queryKey: ["exercises"],
@@ -36,7 +39,62 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$ex
   component: ExercisePage,
 });
 
-type Phase = "active" | "resting";
+/** Rest state survives refresh/lock: we store when it ends, not a countdown. */
+type Rest = { endsAt: number; total: number };
+const restKey = (id: string) => `sparta:rest:${id}`;
+
+function readRest(id: string): Rest | null {
+  try {
+    const raw = sessionStorage.getItem(restKey(id));
+    if (!raw) return null;
+    const r = JSON.parse(raw) as Rest;
+    return r.endsAt > Date.now() ? r : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeRest(id: string, r: Rest | null) {
+  try {
+    if (r) sessionStorage.setItem(restKey(id), JSON.stringify(r));
+    else sessionStorage.removeItem(restKey(id));
+  } catch {
+    /* private mode — the timer still works in memory */
+  }
+}
+
+type WakeLockSentinel = { release: () => Promise<void> };
+
+/** Keeps the screen awake during a workout where supported. */
+function useWakeLock() {
+  useEffect(() => {
+    const wakeLock = (
+      navigator as Navigator & {
+        wakeLock?: { request: (t: "screen") => Promise<WakeLockSentinel> };
+      }
+    ).wakeLock;
+    if (!wakeLock) return;
+    let lock: WakeLockSentinel | null = null;
+    let disposed = false;
+    const acquire = () => {
+      if (document.visibilityState !== "visible") return;
+      wakeLock
+        .request("screen")
+        .then((l) => {
+          if (disposed) l.release().catch(() => {});
+          else lock = l;
+        })
+        .catch(() => {});
+    };
+    acquire();
+    document.addEventListener("visibilitychange", acquire);
+    return () => {
+      disposed = true;
+      document.removeEventListener("visibilitychange", acquire);
+      lock?.release().catch(() => {});
+    };
+  }, []);
+}
 
 function ExercisePage() {
   const { areaId, exerciseId } = Route.useParams();
@@ -51,43 +109,75 @@ function ExercisePage() {
     exercise && exercise.last_completed_date === today ? exercise.completed_sets : 0;
 
   const [completedNow, setCompletedNow] = useState(initialDone);
-  const [phase, setPhase] = useState<Phase>("active");
-  const [seconds, setSeconds] = useState(REST_SECONDS);
+  const [rest, setRest] = useState<Rest | null>(null);
+  const [now, setNow] = useState(() => Date.now());
   const [busy, setBusy] = useState(false);
-  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [finished, setFinished] = useState(false);
+  const [announce, setAnnounce] = useState("");
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // rest timer
+  useWakeLock();
+
+  // Resume a rest that was running before a refresh / app switch.
   useEffect(() => {
-    if (phase !== "resting") return;
-    tickRef.current = setInterval(() => {
-      setSeconds((s) => {
-        if (s <= 1) {
-          if (tickRef.current) clearInterval(tickRef.current);
-          setPhase("active");
-          setSeconds(REST_SECONDS);
-          return REST_SECONDS;
-        }
-        return s - 1;
-      });
-    }, 1000);
-    return () => {
-      if (tickRef.current) clearInterval(tickRef.current);
+    const r = readRest(exerciseId);
+    if (r) setRest(r);
+  }, [exerciseId]);
+
+  const endRest = useCallback(
+    (natural: boolean) => {
+      writeRest(exerciseId, null);
+      setRest(null);
+      if (natural) {
+        navigator.vibrate?.([200, 100, 200]);
+        setAnnounce("המנוחה הסתיימה — זמן לסט הבא");
+      }
+    },
+    [exerciseId],
+  );
+
+  // Tick from the wall clock; recompute right away when the tab becomes visible again.
+  useEffect(() => {
+    if (!rest) return;
+    const tick = () => {
+      const t = Date.now();
+      setNow(t);
+      if (t >= rest.endsAt) endRest(true);
     };
-  }, [phase]);
+    tick();
+    const id = setInterval(tick, 250);
+    document.addEventListener("visibilitychange", tick);
+    return () => {
+      clearInterval(id);
+      document.removeEventListener("visibilitychange", tick);
+    };
+  }, [rest, endRest]);
+
+  useEffect(
+    () => () => {
+      if (exitTimer.current) clearTimeout(exitTimer.current);
+    },
+    [],
+  );
 
   if (!exercise) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-muted-foreground">מכשיר לא נמצא</div>
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+        <p className="text-lg font-bold">המכשיר לא נמצא</p>
+        <Button size="touch" onClick={() => navigate({ to: "/areas/$areaId", params: { areaId } })}>
+          חזרה לאזור
+        </Button>
       </div>
     );
   }
 
+  const machine = getMachine(exercise.name);
+  const title = machine?.nameHe ?? exercise.name;
   const totalSets = exercise.sets;
-  const remaining = totalSets - completedNow;
-  const currentSet = completedNow + 1;
+  const currentSet = Math.min(completedNow + 1, totalSets);
 
   function exit() {
+    writeRest(exerciseId, null);
     navigate({ to: "/areas/$areaId", params: { areaId } });
   }
 
@@ -98,165 +188,205 @@ function ExercisePage() {
       const res = await completeFn({ data: { id: exerciseId } });
       qc.invalidateQueries({ queryKey: ["exercises"] });
       if (res.finished) {
-        toast.success(`כל הכבוד! סיימת ${totalSets} סטים 💪`);
-        // auto-exit back to area
-        setTimeout(() => exit(), 400);
+        setCompletedNow(totalSets);
+        setFinished(true);
+        navigator.vibrate?.(80);
+        exitTimer.current = setTimeout(exit, 1600);
       } else {
         setCompletedNow(res.completed_sets);
-        setSeconds(REST_SECONDS);
-        setPhase("resting");
+        const r = { endsAt: Date.now() + REST_SECONDS * 1000, total: REST_SECONDS };
+        writeRest(exerciseId, r);
+        setNow(Date.now());
+        setRest(r);
+        setAnnounce("");
       }
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "שגיאה");
+    } catch {
+      toast.error("לא הצלחנו לשמור את הסט. בדקו את החיבור ונסו שוב.");
     } finally {
       setBusy(false);
     }
   }
 
-  function skipRest() {
-    if (tickRef.current) clearInterval(tickRef.current);
-    setPhase("active");
-    setSeconds(REST_SECONDS);
+  function addTime() {
+    if (!rest) return;
+    const r = { endsAt: rest.endsAt + 15_000, total: rest.total + 15 };
+    writeRest(exerciseId, r);
+    setRest(r);
   }
 
-  if (phase === "resting") {
-    const pct = ((REST_SECONDS - seconds) / REST_SECONDS) * 100;
+  const shell =
+    "relative flex min-h-[calc(100dvh-72px-env(safe-area-inset-bottom))] flex-col bg-background";
+  const topBar = (label: string) => (
+    <header className="flex items-center justify-between px-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <Button
+        variant="ghost"
+        size="icon-touch"
+        onClick={exit}
+        aria-label="יציאה מהאימון וחזרה לאזור"
+        className="text-muted-foreground"
+      >
+        <X className="size-5" />
+      </Button>
+      <span className="text-sm font-bold tracking-wide text-primary">{label}</span>
+      <span className="size-11" aria-hidden />
+    </header>
+  );
+  const live = (
+    <p aria-live="polite" className="sr-only">
+      {announce}
+    </p>
+  );
+
+  if (finished) {
     return (
-      <div className="min-h-screen relative flex flex-col items-center justify-center bg-background gap-8 px-6">
-        <button
-          onClick={exit}
-          className="absolute top-5 left-5 grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
-          title="צא"
-          aria-label="סגור והחזור לאזור האימון"
-        >
-          <X className="size-5" />
-        </button>
-
-        <div className="text-xs font-semibold uppercase tracking-widest text-primary">
-          מנוחה
+      <div className={cn(shell, "items-center justify-center gap-6 px-6 text-center")}>
+        {live}
+        <div className="grid size-24 place-items-center rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/30 animate-in zoom-in-50 [animation-duration:300ms]">
+          <Trophy className="size-11" aria-hidden />
         </div>
-
-        <div className="relative size-72 sm:size-80">
-          <svg className="size-full -rotate-90" viewBox="0 0 100 100">
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="5"
-              className="text-muted/40"
-            />
-            <circle
-              cx="50"
-              cy="50"
-              r="45"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="5"
-              strokeDasharray={`${2 * Math.PI * 45}`}
-              strokeDashoffset={`${2 * Math.PI * 45 * (1 - pct / 100)}`}
-              strokeLinecap="round"
-              className="text-primary transition-all duration-1000 ease-linear"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <div className="text-7xl font-black tabular-nums sm:text-8xl">{seconds}</div>
-            <div className="mt-1 text-xs text-muted-foreground">שניות</div>
-          </div>
+        <div role="status">
+          <h1 className="text-3xl font-black">כל הכבוד!</h1>
+          <p className="mt-2 text-muted-foreground">
+            סיימת {totalSets} סטים ב{title}
+          </p>
         </div>
-
-        <div className="rounded-full border border-border bg-card px-4 py-2 text-sm">
-          הסט הבא:{" "}
-          <span className="font-bold text-foreground">
-            {completedNow + 1} / {totalSets}
-          </span>
-        </div>
-
-        <Button onClick={skipRest} variant="outline" size="lg" className="gap-2">
-          <SkipForward className="size-4" />
-          דלג למנוחה
+        <Button size="touch" variant="outline" onClick={exit}>
+          חזרה לאזור
         </Button>
       </div>
     );
   }
 
-  // active
-  return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-2xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
-          <button
-            onClick={exit}
-            className="grid size-10 place-items-center rounded-xl text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="צא"
-            aria-label="סגור והחזור לאזור האימון"
+  if (rest) {
+    const remainingMs = Math.max(0, rest.endsAt - now);
+    const seconds = Math.ceil(remainingMs / 1000);
+    const frac = 1 - remainingMs / (rest.total * 1000);
+    const C = 2 * Math.PI * 45;
+    return (
+      <div className={shell}>
+        {live}
+        {topBar("מנוחה")}
+
+        <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-8 px-6 py-6">
+          <div
+            className="relative size-64 sm:size-72"
+            role="timer"
+            aria-label={`נותרו ${seconds} שניות מנוחה`}
           >
-            <X className="size-5" />
-          </button>
-          <div className="text-xs font-semibold uppercase tracking-widest text-primary">
-            באימון
+            <svg className="size-full -rotate-90" viewBox="0 0 100 100" aria-hidden>
+              <circle cx="50" cy="50" r="45" fill="none" strokeWidth="5" className="stroke-muted" />
+              <circle
+                cx="50"
+                cy="50"
+                r="45"
+                fill="none"
+                strokeWidth="5"
+                strokeLinecap="round"
+                strokeDasharray={C}
+                strokeDashoffset={C * frac}
+                className="stroke-primary transition-[stroke-dashoffset] duration-300 ease-linear"
+              />
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <div className="text-7xl font-black tabular-nums sm:text-8xl">{seconds}</div>
+              <div className="mt-1 text-sm text-muted-foreground">שניות</div>
+            </div>
           </div>
-          <div className="size-10" />
-        </div>
-      </header>
 
-      <main className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-8 px-6 py-8">
-        {/* Title */}
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="grid size-14 place-items-center rounded-2xl bg-primary/15 text-primary">
-            <Dumbbell className="size-7" />
+          <div className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-3">
+            <MachineImage machine={machine} className="size-14 shrink-0 rounded-xl" />
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-muted-foreground">הסט הבא</div>
+              <div className="truncate font-bold tabular-nums">
+                סט {currentSet} מתוך {totalSets}
+              </div>
+            </div>
+            <div className="shrink-0 text-end text-sm font-bold tabular-nums">
+              {exercise.weight} ק"ג × {exercise.reps}
+            </div>
           </div>
-          <h1 className="text-2xl font-black sm:text-3xl">{exercise.name}</h1>
+
+          <div className="grid w-full grid-cols-2 gap-3">
+            <Button variant="outline" size="touch" onClick={addTime}>
+              <Plus aria-hidden />
+              15 שניות
+            </Button>
+            <Button size="touch" onClick={() => endRest(false)} className="font-bold">
+              <SkipForward aria-hidden className="rtl:-scale-x-100" />
+              דלג על המנוחה
+            </Button>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  // active set
+  return (
+    <div className={shell}>
+      {live}
+      {topBar("באימון")}
+
+      <main className="mx-auto flex w-full max-w-md flex-1 flex-col gap-5 px-5 pt-2 pb-6">
+        <div className="relative overflow-hidden rounded-3xl shadow-xl">
+          <MachineImage machine={machine} label={exercise.name} className="aspect-[4/3]" eager />
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-linear-to-t from-black/85 via-black/10 to-transparent"
+          />
+          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+            {machine && (
+              <div className="text-xs font-bold text-white/80 tabular-nums">
+                מכשיר {machine.number}
+              </div>
+            )}
+            <h1 className="text-2xl font-black leading-tight sm:text-3xl">{title}</h1>
+          </div>
         </div>
 
-        {/* Sets progress dots */}
-        <div className="flex items-center gap-2">
+        <ol
+          className="flex items-center justify-center gap-2"
+          aria-label={`סט ${currentSet} מתוך ${totalSets}`}
+        >
           {Array.from({ length: totalSets }).map((_, i) => {
             const done = i < completedNow;
             const current = i === completedNow;
             return (
-              <div
+              <li
                 key={i}
-                className={`flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
-                  done
-                    ? "bg-primary/20 text-primary"
-                    : current
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/30"
-                    : "bg-muted text-muted-foreground"
-                }`}
+                aria-current={current ? "step" : undefined}
+                className={cn(
+                  "grid h-8 min-w-8 place-items-center rounded-full px-2 text-sm font-bold tabular-nums transition-colors duration-200",
+                  done && "bg-primary/15 text-primary",
+                  current && "bg-primary text-primary-foreground shadow-md shadow-primary/30",
+                  !done && !current && "bg-muted text-muted-foreground",
+                )}
               >
-                {done ? <Check className="size-3" /> : <span>{i + 1}</span>}
-              </div>
+                {done ? <Check className="size-4" aria-label="הושלם" /> : i + 1}
+              </li>
             );
           })}
+        </ol>
+
+        <div className="grid grid-cols-3 divide-x divide-x-reverse divide-border rounded-3xl border border-border bg-card py-5 shadow-sm">
+          <Stat label="משקל" value={exercise.weight} unit='ק"ג' accent />
+          <Stat label="חזרות" value={exercise.reps} />
+          <Stat label="סט" value={currentSet} unit={`מתוך ${totalSets}`} />
         </div>
 
-        {/* Stats card */}
-        <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 shadow-xl">
-          <div className="mb-4 text-center text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-            סט {currentSet} מתוך {totalSets}
-          </div>
-          <div className="grid grid-cols-3 divide-x divide-x-reverse divide-border">
-            <Stat label="משקל" value={exercise.weight} unit='ק"ג' accent />
-            <Stat label="חזרות" value={exercise.reps} />
-            <Stat label="נותרו" value={remaining} unit={`/${totalSets}`} />
-          </div>
-        </div>
-
-        {/* Action button */}
-        <Button
-          onClick={finishSet}
-          disabled={busy}
-          className="h-16 w-full max-w-md rounded-2xl text-lg font-black shadow-xl shadow-primary/30"
-        >
-          <Check className="size-5" />
-          סיימתי סט
-        </Button>
-
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-          <Repeat className="size-3.5" />
-          מנוחה אוטומטית של {REST_SECONDS} שניות אחרי כל סט
+        <div className="mt-auto flex flex-col gap-3">
+          <Button
+            onClick={finishSet}
+            disabled={busy}
+            className="h-16 w-full rounded-2xl text-lg font-black shadow-xl shadow-primary/30 active:scale-[0.98] [&_svg]:size-5"
+          >
+            {busy ? <Loader2 className="animate-spin" aria-hidden /> : <Check aria-hidden />}
+            {busy ? "שומר..." : "סיימתי סט"}
+          </Button>
+          <p className="flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
+            <Repeat className="size-4" aria-hidden />
+            מנוחה של {REST_SECONDS} שניות אחרי כל סט
+          </p>
         </div>
       </main>
     </div>
@@ -276,19 +406,11 @@ function Stat({
 }) {
   return (
     <div className="px-2 text-center">
-      <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-        {label}
-      </div>
-      <div
-        className={`mt-1 text-4xl font-black tabular-nums sm:text-5xl ${
-          accent ? "text-primary" : ""
-        }`}
-      >
+      <div className="text-xs font-semibold text-muted-foreground">{label}</div>
+      <div className={cn("mt-1 text-4xl font-black tabular-nums", accent && "text-primary")}>
         {value}
       </div>
-      {unit && (
-        <div className="mt-0.5 text-xs text-muted-foreground">{unit}</div>
-      )}
+      {unit && <div className="mt-0.5 text-xs text-muted-foreground">{unit}</div>}
     </div>
   );
 }

@@ -12,7 +12,7 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: () => (
     <>
-      <div className="pb-[72px]">
+      <div className="pb-[calc(72px+env(safe-area-inset-bottom))]">
         <Outlet />
       </div>
       <SpotifyPlayer />
