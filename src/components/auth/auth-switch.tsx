@@ -211,6 +211,7 @@ function OverlayDecor() {
       <img
         src={heroImage}
         alt=""
+        loading="lazy"
         decoding="async"
         className="absolute inset-0 size-full object-cover opacity-45"
       />
