@@ -5,7 +5,7 @@ import { areaName } from "@/lib/workout.constants";
 import { getMachine } from "@/lib/machines";
 import { Button } from "@/components/ui/button";
 import { Check, Pencil, Plus, Play, Dumbbell } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { UserActions } from "@/components/user-actions";
 import { AppHeader } from "@/components/app-header";
 import { MachineImage } from "@/components/machine-image";
 import { ExerciseFormDialog } from "@/components/exercise-form-dialog";
@@ -53,15 +53,7 @@ function AreaPage() {
         back={{ to: "/areas", label: "חזרה לאזורי האימון" }}
         eyebrow="אזור אימון"
         title={areaName(areaId)}
-        actions={
-          <>
-            <ThemeToggle />
-            <Button onClick={() => setAdding(true)} size="touch" className="gap-1.5 px-4 font-bold">
-              <Plus aria-hidden />
-              <span className="sr-only sm:not-sr-only">מכשיר חדש</span>
-            </Button>
-          </>
-        }
+        actions={<UserActions />}
       />
 
       <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
@@ -78,17 +70,28 @@ function AreaPage() {
             </Button>
           </div>
         ) : (
-          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {list.map((ex, i) => (
-              <li
-                key={ex.id}
-                className="animate-in fade-in slide-in-from-bottom-2 [animation-duration:300ms] [animation-fill-mode:both]"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
-                <ExerciseCard ex={ex} areaId={areaId} onEdit={() => setEditing(ex)} />
-              </li>
-            ))}
-          </ul>
+          <>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <span className="text-sm text-muted-foreground tabular-nums">
+                {list.length === 1 ? "מכשיר אחד" : `${list.length} מכשירים`}
+              </span>
+              <Button onClick={() => setAdding(true)} size="touch" className="font-bold">
+                <Plus aria-hidden />
+                מכשיר חדש
+              </Button>
+            </div>
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {list.map((ex, i) => (
+                <li
+                  key={ex.id}
+                  className="animate-in fade-in slide-in-from-bottom-2 [animation-duration:300ms] [animation-fill-mode:both]"
+                  style={{ animationDelay: `${i * 40}ms` }}
+                >
+                  <ExerciseCard ex={ex} areaId={areaId} onEdit={() => setEditing(ex)} />
+                </li>
+              ))}
+            </ul>
+          </>
         )}
       </main>
 

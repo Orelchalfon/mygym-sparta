@@ -1,13 +1,12 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { listExercises } from "@/lib/workout.functions";
 import { AREAS } from "@/lib/workout.constants";
 import { areaCover } from "@/lib/machines";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { LogOut, Dumbbell, ChevronLeft } from "lucide-react";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { Dumbbell, ChevronLeft } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
+import { UserActions } from "@/components/user-actions";
 import { MachineImage } from "@/components/machine-image";
 import { useEffect, useState } from "react";
 
@@ -48,8 +47,6 @@ export const Route = createFileRoute("/_authenticated/areas/")({
 
 function AreasPage() {
   const { data: exercises } = useSuspenseQuery(exercisesQO);
-  const navigate = useNavigate();
-  const qc = useQueryClient();
   const [name, setName] = useState<string>("");
 
   useEffect(() => {
@@ -68,13 +65,6 @@ function AreasPage() {
     }
   }, []);
 
-  async function signOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
-
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <AppHeader
@@ -85,20 +75,7 @@ function AreasPage() {
         }
         eyebrow={name ? `שלום, ${name}` : "שלום"}
         title="אזורי אימון"
-        actions={
-          <>
-            <ThemeToggle />
-            <Button
-              size="icon-touch"
-              variant="ghost"
-              onClick={signOut}
-              aria-label="התנתק מהחשבון"
-              title="התנתק"
-            >
-              <LogOut className="size-5" />
-            </Button>
-          </>
-        }
+        actions={<UserActions />}
       />
 
       <main className="mx-auto max-w-5xl px-4 pt-5 pb-8 sm:px-6 sm:pt-8">

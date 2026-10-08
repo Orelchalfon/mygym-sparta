@@ -24,19 +24,19 @@ export function ThemeToggle() {
           onClick={() => setTheme("light")}
           className={theme === "light" ? "bg-accent" : ""}
         >
-          <Sun className="ms-2 h-4 w-4" /> בהיר
+          <Sun className="me-2 h-4 w-4" /> בהיר
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("dark")}
           className={theme === "dark" ? "bg-accent" : ""}
         >
-          <Moon className="ms-2 h-4 w-4" /> כהה
+          <Moon className="me-2 h-4 w-4" /> כהה
         </DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => setTheme("system")}
           className={theme === "system" ? "bg-accent" : ""}
         >
-          <Monitor className="ms-2 h-4 w-4" /> מערכת
+          <Monitor className="me-2 h-4 w-4" /> מערכת
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

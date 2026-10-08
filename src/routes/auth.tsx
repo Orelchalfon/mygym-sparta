@@ -37,22 +37,22 @@ function AuthPage() {
   const navigate = useNavigate();
   const { mode = "signin" } = Route.useSearch();
 
-useEffect(() => {
-  try {
-    supabase.auth
-      .getUser()
-      .then(({ data }) => {
-        if (data.user) {
-          navigate({ to: "/areas", replace: true });
-        }
-      })
-      .catch(() => {
-        // Keep the sign-in form visible if the auth check fails.
-      });
-  } catch {
-    // Keep the sign-in form visible if auth initialization fails.
-  }
-}, [navigate]);
+  useEffect(() => {
+    try {
+      supabase.auth
+        .getUser()
+        .then(({ data }) => {
+          if (data.user) {
+            navigate({ to: "/areas", replace: true });
+          }
+        })
+        .catch(() => {
+          // Keep the sign-in form visible if the auth check fails.
+        });
+    } catch {
+      // Keep the sign-in form visible if auth initialization fails.
+    }
+  }, [navigate]);
 
   return (
     <main className="relative flex min-h-dvh items-center justify-center overflow-clip bg-background px-4 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
