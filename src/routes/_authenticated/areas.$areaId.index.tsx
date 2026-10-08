@@ -1,34 +1,20 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import {
-  listExercises,
-  updateExercise,
-  createExercise,
-  deleteExercise,
-  type Exercise,
-} from "@/lib/workout.functions";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
+import { listExercises, type Exercise } from "@/lib/workout.functions";
 import { areaName } from "@/lib/workout.constants";
+import { getMachine } from "@/lib/machines";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { ArrowRight, Pencil, Plus, Play, Trash2, Dumbbell } from "lucide-react";
+import { Check, Pencil, Plus, Play, Dumbbell } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { AppHeader } from "@/components/app-header";
+import { MachineImage } from "@/components/machine-image";
+import { ExerciseFormDialog } from "@/components/exercise-form-dialog";
 import { useState } from "react";
-import { toast } from "sonner";
 
 const exercisesQO = queryOptions({
   queryKey: ["exercises"],
   queryFn: () => listExercises(),
 });
-
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
@@ -53,31 +39,6 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   component: AreaPage,
 });
 
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  return (
-    <div className="space-y-1">
-      <Label>{label}</Label>
-      <Input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        inputMode={type === "number" ? "decimal" : undefined}
-      />
-    </div>
-  );
-}
-
-
 function AreaPage() {
   const { areaId } = Route.useParams();
   const { data: all } = useSuspenseQuery(exercisesQO);
@@ -87,68 +48,54 @@ function AreaPage() {
   const [adding, setAdding] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="sticky top-0 z-10 border-b border-border/60 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center gap-3 px-4 py-4 sm:px-6">
-          <Link
-            to="/areas"
-            className="grid size-10 shrink-0 place-items-center rounded-xl hover:bg-muted"
-            title="חזרה"
-            aria-label="חזרה לאזורי האימון"
-          >
-            <ArrowRight className="size-5" />
-          </Link>
-          <div className="min-w-0 flex-1">
-            <div className="text-xs text-muted-foreground">אזור אימון</div>
-            <h1 className="truncate text-lg font-bold leading-tight sm:text-xl">
-              {areaName(areaId)}
-            </h1>
-          </div>
-          <div className="flex items-center gap-2">
+    <div className="min-h-dvh bg-background text-foreground">
+      <AppHeader
+        back={{ to: "/areas", label: "חזרה לאזורי האימון" }}
+        eyebrow="אזור אימון"
+        title={areaName(areaId)}
+        actions={
+          <>
             <ThemeToggle />
-            <Button
-              onClick={() => setAdding(true)}
-              className="shrink-0 gap-1.5 rounded-xl"
-              size="sm"
-            >
-              <Plus className="size-4" />
-              <span className="hidden sm:inline">מכשיר חדש</span>
+            <Button onClick={() => setAdding(true)} size="touch" className="gap-1.5 px-4 font-bold">
+              <Plus aria-hidden />
+              <span className="sr-only sm:not-sr-only">מכשיר חדש</span>
             </Button>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
         {list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/40 px-6 py-16 text-center">
-            <div className="grid size-16 place-items-center rounded-2xl bg-muted">
-              <Dumbbell className="size-8 text-muted-foreground" />
+            <div className="grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
+              <Dumbbell className="size-8" aria-hidden />
             </div>
-            <p className="mt-4 text-base font-semibold">אין מכשירים באזור זה</p>
-            <p className="mt-1 text-sm text-muted-foreground">
-              הוסף את המכשיר הראשון שלך כדי להתחיל
-            </p>
-            <Button onClick={() => setAdding(true)} className="mt-5 gap-1.5">
-              <Plus className="size-4" />
-              הוסף מכשיר
+            <p className="mt-4 text-lg font-bold">עוד אין מכשירים באזור הזה</p>
+            <p className="mt-1 text-muted-foreground">הוסיפו את המכשיר הראשון כדי להתחיל להתאמן</p>
+            <Button onClick={() => setAdding(true)} size="touch" className="mt-6 font-bold">
+              <Plus aria-hidden />
+              הוספת מכשיר
             </Button>
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
-            {list.map((ex) => (
-              <ExerciseCard
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {list.map((ex, i) => (
+              <li
                 key={ex.id}
-                ex={ex}
-                areaId={areaId}
-                onEdit={() => setEditing(ex)}
-              />
+                className="animate-in fade-in slide-in-from-bottom-2 [animation-duration:300ms] [animation-fill-mode:both]"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                <ExerciseCard ex={ex} areaId={areaId} onEdit={() => setEditing(ex)} />
+              </li>
             ))}
-          </div>
+          </ul>
         )}
       </main>
 
-      {editing && <EditDialog exercise={editing} onClose={() => setEditing(null)} />}
-      {adding && <AddDialog area={areaId} onClose={() => setAdding(false)} />}
+      {editing && (
+        <ExerciseFormDialog area={areaId} exercise={editing} onClose={() => setEditing(null)} />
+      )}
+      {adding && <ExerciseFormDialog area={areaId} onClose={() => setAdding(false)} />}
     </div>
   );
 }
@@ -162,173 +109,67 @@ function ExerciseCard({
   areaId: string;
   onEdit: () => void;
 }) {
+  const machine = getMachine(ex.name);
+  const today = new Date().toISOString().slice(0, 10);
+  const doneToday = ex.last_completed_date === today ? ex.completed_sets : 0;
+
   return (
-    <div className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
-      {ex.image_url ? (
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-          <img
-            src={ex.image_url}
-            alt={ex.name}
-            loading="lazy"
-            className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
-          />
-        </div>
-      ) : null}
-      <div className="flex flex-1 flex-col p-5">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <div className="truncate text-lg font-bold">{ex.name}</div>
-            <div className="mt-0.5 text-xs text-muted-foreground">
-              {ex.sets} סטים × {ex.reps} חזרות
-            </div>
-          </div>
-          <button
-            onClick={onEdit}
-            className="grid size-9 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
-            title="ערוך"
-            aria-label={`ערוך את ${ex.name}`}
-          >
-            <Pencil className="size-4" />
-          </button>
-        </div>
-
-        <div className="my-5 flex items-baseline justify-center gap-1">
-          <span className="text-5xl font-black tabular-nums text-primary">
-            {ex.weight}
+    <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <div className="relative">
+        <MachineImage machine={machine} label={ex.name} className="aspect-[4/3]" />
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-linear-to-t from-black/70 via-transparent to-black/30"
+        />
+        {machine && (
+          <span className="absolute start-3 top-3 rounded-lg bg-black/60 px-2 py-1 text-xs font-bold text-white backdrop-blur tabular-nums">
+            מכשיר {machine.number}
           </span>
-          <span className="text-sm font-semibold text-muted-foreground">ק"ג</span>
+        )}
+        <Button
+          size="icon-touch"
+          variant="ghost"
+          onClick={onEdit}
+          aria-label={`עריכת ${ex.name}`}
+          className="absolute end-2 top-2 bg-black/45 text-white backdrop-blur hover:bg-black/65 hover:text-white"
+        >
+          <Pencil aria-hidden />
+        </Button>
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 p-4 text-white">
+          <div className="min-w-0">
+            <h2 className="truncate text-lg font-black">{machine?.nameHe ?? ex.name}</h2>
+            {machine && machine.nameHe !== ex.name && (
+              <p className="truncate text-xs text-white/75">{ex.name}</p>
+            )}
+          </div>
+          <div className="shrink-0 text-end leading-none">
+            <span className="text-3xl font-black tabular-nums">{ex.weight}</span>
+            <span className="ms-1 text-xs font-semibold text-white/80">ק"ג</span>
+          </div>
         </div>
+      </div>
 
+      <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="flex items-center justify-between gap-2 text-sm">
+          <span className="text-muted-foreground tabular-nums">
+            {ex.sets} סטים × {ex.reps} חזרות
+          </span>
+          {doneToday > 0 && (
+            <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary tabular-nums">
+              <Check className="size-3.5" aria-hidden />
+              {doneToday}/{ex.sets} היום
+            </span>
+          )}
+        </div>
         <Link
           to="/areas/$areaId/exercise/$exerciseId"
           params={{ areaId, exerciseId: ex.id }}
-          className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-all hover:brightness-110 active:scale-[0.98]"
+          className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-[filter,transform] hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
-          <Play className="size-4 fill-current" />
-          התחל אימון
+          <Play className="size-4 fill-current" aria-hidden />
+          {doneToday > 0 ? "המשך אימון" : "התחל אימון"}
         </Link>
       </div>
-    </div>
-  );
-}
-
-
-function EditDialog({ exercise, onClose }: { exercise: Exercise; onClose: () => void }) {
-  const qc = useQueryClient();
-  const updateFn = useServerFn(updateExercise);
-  const deleteFn = useServerFn(deleteExercise);
-  const [name, setName] = useState(exercise.name);
-  const [weight, setWeight] = useState(String(exercise.weight));
-  const [reps, setReps] = useState(String(exercise.reps));
-  const [sets, setSets] = useState(String(exercise.sets));
-
-  const update = useMutation({
-    mutationFn: () =>
-      updateFn({
-        data: {
-          id: exercise.id,
-          name,
-          weight: Number(weight),
-          reps: Number(reps),
-          sets: Number(sets),
-        },
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["exercises"] });
-      toast.success("נשמר");
-      onClose();
-    },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "שגיאה"),
-  });
-
-  const del = useMutation({
-    mutationFn: () => deleteFn({ data: { id: exercise.id } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["exercises"] });
-      toast.success("נמחק");
-      onClose();
-    },
-  });
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent dir="rtl">
-        <DialogHeader>
-          <DialogTitle>עריכת מכשיר</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <Field label="שם" value={name} onChange={setName} />
-          <Field label='משקל (ק"ג)' value={weight} onChange={setWeight} type="number" />
-          <Field label="חזרות" value={reps} onChange={setReps} type="number" />
-          <Field label="סטים" value={sets} onChange={setSets} type="number" />
-        </div>
-        <DialogFooter className="flex !flex-row !justify-between gap-2">
-          <Button
-            variant="destructive"
-            onClick={() => del.mutate()}
-            disabled={del.isPending}
-          >
-            <Trash2 className="size-4 ml-1" />
-            מחק
-          </Button>
-          <Button onClick={() => update.mutate()} disabled={update.isPending}>
-            שמור
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function AddDialog({ area, onClose }: { area: string; onClose: () => void }) {
-  const qc = useQueryClient();
-  const createFn = useServerFn(createExercise);
-  const [name, setName] = useState("");
-  const [weight, setWeight] = useState("25");
-  const [reps, setReps] = useState("7");
-  const [sets, setSets] = useState("3");
-
-  const create = useMutation({
-    mutationFn: () =>
-      createFn({
-        data: {
-          area,
-          name,
-          weight: Number(weight),
-          reps: Number(reps),
-          sets: Number(sets),
-        },
-      }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["exercises"] });
-      toast.success("נוסף");
-      onClose();
-    },
-    onError: (e) => toast.error(e instanceof Error ? e.message : "שגיאה"),
-  });
-
-  return (
-    <Dialog open onOpenChange={onClose}>
-      <DialogContent dir="rtl">
-        <DialogHeader>
-          <DialogTitle>הוספת מכשיר</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-3">
-          <Field label="שם" value={name} onChange={setName} />
-          <Field label='משקל (ק"ג)' value={weight} onChange={setWeight} type="number" />
-          <Field label="חזרות" value={reps} onChange={setReps} type="number" />
-          <Field label="סטים" value={sets} onChange={setSets} type="number" />
-        </div>
-        <DialogFooter>
-          <Button
-            onClick={() => create.mutate()}
-            disabled={create.isPending || !name.trim()}
-            className="w-full"
-          >
-            הוסף
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    </article>
   );
 }

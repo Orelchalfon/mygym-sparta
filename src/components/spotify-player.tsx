@@ -145,12 +145,12 @@ export function SpotifyPlayer() {
       );
       player.addListener("authentication_error", ({ message }: any) => {
         console.error("Spotify auth error:", message);
-        toast.error("Spotify auth expired — please reconnect");
+        toast.error("החיבור לספוטיפיי פג — התחבר מחדש");
         setConnected(false);
       });
       player.addListener("account_error", ({ message }: any) => {
         console.error("Spotify account error:", message);
-        toast.error("Spotify Premium is required");
+        toast.error("נדרש מנוי Spotify Premium");
       });
       player.addListener("player_state_changed", (state: any) => {
         if (!state) return;
@@ -201,7 +201,7 @@ export function SpotifyPlayer() {
       if (!clientId) throw new Error("Spotify not configured");
       await beginSpotifyLogin(clientId);
     } catch (e: any) {
-      toast.error(e?.message ?? "Failed to start Spotify login");
+      toast.error("לא הצלחנו להתחבר לספוטיפיי. נסה שוב.");
     }
   };
 
@@ -211,9 +211,9 @@ export function SpotifyPlayer() {
       setConnected(false);
       setTrack(null);
       setExpanded(false);
-      toast.success("Spotify disconnected");
+      toast.success("ספוטיפיי נותק");
     } catch {
-      toast.error("Failed to disconnect");
+      toast.error("הניתוק נכשל");
     }
   };
 
@@ -239,10 +239,10 @@ export function SpotifyPlayer() {
       const res = await transferPlayback({
         data: { deviceId, play: !paused },
       });
-      if (res.ok) toast.success("Playback on this device");
-      else toast.error("Couldn't take over — start a track in Spotify first");
+      if (res.ok) toast.success("מנגן במכשיר הזה");
+      else toast.error("לא הצלחנו להעביר — הפעל שיר בספוטיפיי קודם");
     } catch {
-      toast.error("Failed to switch device");
+      toast.error("החלפת המכשיר נכשלה");
     }
   };
 
@@ -252,15 +252,17 @@ export function SpotifyPlayer() {
     return (
       <div
         dir="ltr"
-        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-card/80"
       >
         <div className="mx-auto flex h-[72px] max-w-3xl items-center justify-center px-3">
           <Button
             onClick={handleConnect}
-            className="bg-[#1DB954] hover:bg-[#1ed760] text-black"
+            size="touch"
+            variant="outline"
+            className="rounded-full font-bold"
           >
-            <Music className="w-4 h-4 mr-2" />
-            Connect Spotify
+            <Music className="text-[#1DB954]" aria-hidden />
+            חבר ספוטיפיי למוזיקה באימון
           </Button>
         </div>
       </div>
@@ -273,28 +275,24 @@ export function SpotifyPlayer() {
     <Drawer open={expanded} onOpenChange={setExpanded}>
       <div
         dir="ltr"
-        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-card/80"
       >
         <div className="mx-auto flex h-[72px] max-w-3xl items-center gap-3 px-3">
           <DrawerTrigger asChild>
             <button
               className="flex items-center gap-3 min-w-0 flex-1 text-left cursor-pointer hover:opacity-90"
-              aria-label="Expand player"
+              aria-label="הרחב נגן"
             >
               {track?.image ? (
-                <img
-                  src={track.image}
-                  alt=""
-                  className="w-12 h-12 rounded object-cover"
-                />
+                <img src={track.image} alt="" className="w-12 h-12 rounded-lg object-cover" />
               ) : (
-                <div className="w-12 h-12 rounded bg-muted flex items-center justify-center">
+                <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                   <Music className="w-5 h-5 text-muted-foreground" />
                 </div>
               )}
               <div className="min-w-0 flex-1">
                 <div className="text-sm font-medium truncate text-foreground">
-                  {track?.name ?? (ready ? "Ready — tap to expand" : "Connecting…")}
+                  {track?.name ?? (ready ? "מוכן — הקש להרחבה" : "מתחבר…")}
                 </div>
                 <div className="text-xs text-muted-foreground truncate">
                   {track?.artist ?? (ready ? "Workout Buddy" : "")}
@@ -304,19 +302,32 @@ export function SpotifyPlayer() {
             </button>
           </DrawerTrigger>
           <div className="flex items-center gap-1">
-            <Button size="icon" variant="ghost" onClick={prev} disabled={!ready}>
-              <SkipBack className="w-4 h-4" />
+            <Button
+              size="icon-touch"
+              variant="ghost"
+              onClick={prev}
+              disabled={!ready}
+              aria-label="השיר הקודם"
+            >
+              <SkipBack />
             </Button>
             <Button
-              size="icon"
+              size="icon-touch"
               onClick={togglePlay}
               disabled={!ready}
-              className="bg-primary text-primary-foreground hover:bg-primary/90"
+              aria-label={paused ? "נגן" : "השהה"}
+              className="rounded-full"
             >
-              {paused ? <Play className="w-4 h-4" /> : <Pause className="w-4 h-4" />}
+              {paused ? <Play /> : <Pause />}
             </Button>
-            <Button size="icon" variant="ghost" onClick={next} disabled={!ready}>
-              <SkipForward className="w-4 h-4" />
+            <Button
+              size="icon-touch"
+              variant="ghost"
+              onClick={next}
+              disabled={!ready}
+              aria-label="השיר הבא"
+            >
+              <SkipForward />
             </Button>
           </div>
         </div>
@@ -324,12 +335,12 @@ export function SpotifyPlayer() {
 
       <DrawerContent dir="ltr">
         <DrawerHeader className="flex flex-row items-center justify-between">
-          <DrawerTitle>Now Playing</DrawerTitle>
+          <DrawerTitle>מתנגן עכשיו</DrawerTitle>
           <Button
             size="icon"
             variant="ghost"
             onClick={() => setExpanded(false)}
-            aria-label="Collapse"
+            aria-label="מזער נגן"
           >
             <ChevronDown className="w-5 h-5" />
           </Button>
@@ -337,11 +348,7 @@ export function SpotifyPlayer() {
 
         <div className="px-6 pb-8 flex flex-col items-center gap-5">
           {track?.image ? (
-            <img
-              src={track.image}
-              alt=""
-              className="w-56 h-56 rounded-xl object-cover shadow-lg"
-            />
+            <img src={track.image} alt="" className="w-56 h-56 rounded-xl object-cover shadow-lg" />
           ) : (
             <div className="w-56 h-56 rounded-xl bg-muted flex items-center justify-center">
               <Music className="w-16 h-16 text-muted-foreground" />
@@ -350,10 +357,10 @@ export function SpotifyPlayer() {
 
           <div className="text-center w-full">
             <div className="text-lg font-semibold truncate text-foreground">
-              {track?.name ?? "Nothing playing"}
+              {track?.name ?? "שום דבר לא מתנגן"}
             </div>
             <div className="text-sm text-muted-foreground truncate">
-              {track?.artist ?? "Start a track to begin"}
+              {track?.artist ?? "הפעל שיר כדי להתחיל"}
             </div>
           </div>
 
@@ -363,6 +370,7 @@ export function SpotifyPlayer() {
               max={duration || 1}
               step={1000}
               onValueChange={handleSeek}
+              aria-label="מיקום בשיר"
               disabled={!ready || !duration}
             />
             <div className="flex justify-between text-xs text-muted-foreground tabular-nums">
@@ -376,6 +384,7 @@ export function SpotifyPlayer() {
               size="icon"
               variant="ghost"
               onClick={prev}
+              aria-label="השיר הקודם"
               disabled={!ready}
               className="h-12 w-12"
             >
@@ -384,6 +393,7 @@ export function SpotifyPlayer() {
             <Button
               size="icon"
               onClick={togglePlay}
+              aria-label={paused ? "נגן" : "השהה"}
               disabled={!ready}
               className="h-16 w-16 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
@@ -393,6 +403,7 @@ export function SpotifyPlayer() {
               size="icon"
               variant="ghost"
               onClick={next}
+              aria-label="השיר הבא"
               disabled={!ready}
               className="h-12 w-12"
             >
@@ -407,23 +418,19 @@ export function SpotifyPlayer() {
               max={100}
               step={1}
               onValueChange={handleVolume}
+              aria-label="עוצמת שמע"
               disabled={!ready}
             />
           </div>
 
           <div className="w-full flex items-center justify-between pt-2 border-t border-border">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleClaimDevice}
-              disabled={!deviceId}
-            >
+            <Button variant="ghost" size="sm" onClick={handleClaimDevice} disabled={!deviceId}>
               <Radio className="w-4 h-4 mr-2" />
-              Play on this device
+              נגן במכשיר הזה
             </Button>
             <Button variant="ghost" size="sm" onClick={handleDisconnect}>
               <LogOut className="w-4 h-4 mr-2" />
-              Disconnect
+              התנתק
             </Button>
           </div>
         </div>
