@@ -20,6 +20,7 @@ export type Database = {
           completed_sets: number
           created_at: string
           id: string
+          image_url: string | null
           last_completed_date: string | null
           name: string
           reps: number
@@ -33,6 +34,7 @@ export type Database = {
           completed_sets?: number
           created_at?: string
           id?: string
+          image_url?: string | null
           last_completed_date?: string | null
           name: string
           reps?: number
@@ -46,6 +48,7 @@ export type Database = {
           completed_sets?: number
           created_at?: string
           id?: string
+          image_url?: string | null
           last_completed_date?: string | null
           name?: string
           reps?: number
