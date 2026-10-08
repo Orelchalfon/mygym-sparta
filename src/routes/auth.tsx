@@ -44,7 +44,7 @@ function AuthPage() {
   }, [navigate]);
 
   return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-background px-4 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
+    <main className="relative flex min-h-dvh items-center justify-center overflow-clip bg-background px-4 pt-[max(2.5rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))]">
       {/* background glow */}
       <div aria-hidden className="pointer-events-none absolute inset-0">
         <div className="absolute -top-32 left-1/2 size-[28rem] -translate-x-1/2 rounded-full bg-primary/20 blur-3xl" />

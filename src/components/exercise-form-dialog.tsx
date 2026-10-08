@@ -283,7 +283,12 @@ function MachinePicker({
       <div
         role="radiogroup"
         aria-labelledby="ex-machine-label"
-        className="grid max-h-64 grid-cols-3 gap-2 overflow-y-auto overscroll-contain rounded-xl sm:grid-cols-4"
+        // Only the full 28-machine list gets its own scroll; an area's handful shows in full
+        // so the sheet doesn't nest two scroll regions.
+        className={cn(
+          "grid grid-cols-3 gap-2 rounded-xl sm:grid-cols-4",
+          showAll && "max-h-72 overflow-y-auto overscroll-contain",
+        )}
       >
         {shown.map((m) => {
           const active = m.number === selected;

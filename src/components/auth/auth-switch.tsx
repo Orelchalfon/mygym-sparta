@@ -86,7 +86,7 @@ export function AuthSwitch({ mode, onModeChange }: AuthSwitchProps) {
         <span className="text-xl font-black tracking-tight text-foreground">ספרטא</span>
       </Link>
 
-      <div className="relative w-full overflow-hidden rounded-3xl border bg-card shadow-2xl [--auth-dir:1] rtl:[--auth-dir:-1] md:grid md:min-h-[600px] md:grid-cols-2">
+      <div className="relative w-full overflow-clip rounded-3xl border bg-card shadow-2xl [--auth-dir:1] rtl:[--auth-dir:-1] md:grid md:min-h-[600px] md:grid-cols-2">
         <div className={paneClass(!isSignUp)} inert={isSignUp}>
           <SignInForm email={email} onEmailChange={setEmail} firstFieldRef={signInFirstField} />
         </div>
