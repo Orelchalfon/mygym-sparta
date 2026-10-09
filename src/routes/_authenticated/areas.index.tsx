@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { listExercises } from "@/lib/workout.functions";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { activeSessionQO, exercisesQO } from "@/lib/workout.queries";
 import { AREAS } from "@/lib/workout.constants";
 import { areaCover } from "@/lib/machines";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,15 +8,15 @@ import { Dumbbell, ChevronLeft } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { UserActions } from "@/components/user-actions";
 import { MachineImage } from "@/components/machine-image";
+import { ActiveWorkoutBar } from "@/components/workout/active-workout-bar";
 import { useEffect, useState } from "react";
 
-const exercisesQO = queryOptions({
-  queryKey: ["exercises"],
-  queryFn: () => listExercises(),
-});
-
 export const Route = createFileRoute("/_authenticated/areas/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(exercisesQO),
+      context.queryClient.fetchQuery(activeSessionQO),
+    ]),
   head: () => ({
     meta: [
       { title: "אזורי אימון — אימון אישי" },
@@ -47,6 +47,7 @@ export const Route = createFileRoute("/_authenticated/areas/")({
 
 function AreasPage() {
   const { data: exercises } = useSuspenseQuery(exercisesQO);
+  const { data: session } = useSuspenseQuery(activeSessionQO);
   const [name, setName] = useState<string>("");
 
   useEffect(() => {
@@ -79,6 +80,8 @@ function AreasPage() {
       />
 
       <main className="mx-auto max-w-5xl px-4 pt-5 pb-8 sm:px-6 sm:pt-8">
+        {session && <ActiveWorkoutBar session={session} />}
+
         <div className="mb-5 flex items-baseline justify-between gap-3">
           <h2 className="text-2xl font-black tracking-tight sm:text-3xl">מה מאמנים היום?</h2>
           <span className="shrink-0 text-sm text-muted-foreground tabular-nums">

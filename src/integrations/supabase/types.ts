@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.18"
   }
   public: {
     Tables: {
@@ -59,6 +59,63 @@ export type Database = {
         }
         Relationships: []
       }
+      set_logs: {
+        Row: {
+          area: string
+          client_event_id: string
+          completed_at: string
+          exercise_id: string | null
+          exercise_name: string
+          id: string
+          reps: number
+          session_id: string
+          set_number: number
+          user_id: string
+          weight: number
+        }
+        Insert: {
+          area: string
+          client_event_id: string
+          completed_at?: string
+          exercise_id?: string | null
+          exercise_name: string
+          id?: string
+          reps: number
+          session_id: string
+          set_number: number
+          user_id?: string
+          weight: number
+        }
+        Update: {
+          area?: string
+          client_event_id?: string
+          completed_at?: string
+          exercise_id?: string | null
+          exercise_name?: string
+          id?: string
+          reps?: number
+          session_id?: string
+          set_number?: number
+          user_id?: string
+          weight?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "set_logs_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "set_logs_session_owner_fkey"
+            columns: ["session_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
       user_spotify_tokens: {
         Row: {
           access_token: string
@@ -89,12 +146,43 @@ export type Database = {
         }
         Relationships: []
       }
+      workout_sessions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      close_stale_sessions: { Args: never; Returns: undefined }
+      finish_session: { Args: { p_session_id: string }; Returns: undefined }
+      get_active_session: { Args: never; Returns: Json }
+      log_set: {
+        Args: { p_client_event_id: string; p_exercise_id: string }
+        Returns: Json
+      }
+      seed_default_exercises: { Args: { p_rows: Json }; Returns: number }
     }
     Enums: {
       [_ in never]: never

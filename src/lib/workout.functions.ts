@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { SEED_EXERCISES, FACILITY_IMAGES } from "./workout.constants";
+import { SEED_EXERCISES } from "./workout.constants";
 
 export type Exercise = {
   id: string;
@@ -10,83 +10,32 @@ export type Exercise = {
   weight: number;
   reps: number;
   sets: number;
-  completed_sets: number;
-  last_completed_date: string | null;
   sort_order: number;
-  image_url: string | null;
 };
 
 export const listExercises = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<Exercise[]> => {
-    const { supabase, userId } = context;
+    const { supabase } = context;
+    const select = () =>
+      supabase
+        .from("exercises")
+        .select("id, area, name, weight, reps, sets, sort_order")
+        .order("area", { ascending: true })
+        .order("sort_order", { ascending: true });
 
-    let { data, error } = await supabase
-      .from("exercises")
-      .select("*")
-      .order("area", { ascending: true })
-      .order("sort_order", { ascending: true });
+    const { data, error } = await select();
     if (error) throw new Error(error.message);
+    if (data.length > 0) return data;
 
-    if (!data || data.length === 0) {
-      const rows = SEED_EXERCISES.map((e, i) => ({
-        user_id: userId,
-        area: e.area,
-        name: e.name,
-        weight: e.weight,
-        reps: e.reps,
-        sets: e.sets,
-        sort_order: i,
-        image_url: e.image_url ?? null,
-      }));
-      const ins = await supabase.from("exercises").insert(rows).select("*");
-      if (ins.error) throw new Error(ins.error.message);
-      data = ins.data;
-    } else {
-      // Backfill: attach known facility photos to existing rows that don't have one yet.
-      const toPatch = (data as Exercise[]).filter(
-        (row) => !row.image_url && FACILITY_IMAGES[row.name],
-      );
-      if (toPatch.length > 0) {
-        await Promise.all(
-          toPatch.map((row) =>
-            supabase
-              .from("exercises")
-              .update({ image_url: FACILITY_IMAGES[row.name] })
-              .eq("id", row.id),
-          ),
-        );
-        // Seed missing new facilities (12, 13, 15) for existing users.
-        const existingNames = new Set((data as Exercise[]).map((r) => r.name));
-        const missing = SEED_EXERCISES.filter(
-          (e) => e.image_url && !existingNames.has(e.name),
-        );
-        if (missing.length > 0) {
-          await supabase.from("exercises").insert(
-            missing.map((e, i) => ({
-              user_id: userId,
-              area: e.area,
-              name: e.name,
-              weight: e.weight,
-              reps: e.reps,
-              sets: e.sets,
-              sort_order: 1000 + i,
-              image_url: e.image_url ?? null,
-            })),
-          );
-        }
-        const refetch = await supabase
-          .from("exercises")
-          .select("*")
-          .order("area", { ascending: true })
-          .order("sort_order", { ascending: true });
-        if (!refetch.error) data = refetch.data;
-      }
-    }
-
-    return (data ?? []) as Exercise[];
+    // First visit: seed the defaults. The RPC is a no-op if rows already exist,
+    // so concurrent first loads can't create duplicates.
+    const seed = await supabase.rpc("seed_default_exercises", { p_rows: SEED_EXERCISES });
+    if (seed.error) throw new Error(seed.error.message);
+    const again = await select();
+    if (again.error) throw new Error(again.error.message);
+    return again.data;
   });
-
 
 export const createExercise = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -154,33 +103,109 @@ export const deleteExercise = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const completeSet = createServerFn({ method: "POST" })
+export type LogSetResult = {
+  session_id: string;
+  set_number: number;
+  target_sets: number;
+  /** A full round of the exercise's sets was just completed. */
+  finished: boolean;
+};
+
+/** "סיימתי סט" — atomic and idempotent per clientEventId (see log_set in the migrations). */
+export const logSet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ exerciseId: z.string().uuid(), clientEventId: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data, context }): Promise<LogSetResult> => {
+    const { data: res, error } = await context.supabase.rpc("log_set", {
+      p_exercise_id: data.exerciseId,
+      p_client_event_id: data.clientEventId,
+    });
+    if (error) throw new Error(error.message);
+    return res as LogSetResult;
+  });
+
+export type ActiveSession = {
+  id: string;
+  started_at: string;
+  total_sets: number;
+  /** Sets done in this session, by exercise id. */
+  counts: Record<string, number>;
+};
+
+export const getActiveSession = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ActiveSession | null> => {
+    const { data, error } = await context.supabase.rpc("get_active_session");
+    if (error) throw new Error(error.message);
+    return (data as ActiveSession | null) ?? null;
+  });
+
+export const finishSession = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ sessionId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase.rpc("finish_session", {
+      p_session_id: data.sessionId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export type SetLog = {
+  id: string;
+  exercise_id: string | null;
+  exercise_name: string;
+  area: string;
+  set_number: number;
+  weight: number;
+  reps: number;
+  completed_at: string;
+};
+
+export type WorkoutSession = {
+  id: string;
+  status: "active" | "completed";
+  started_at: string;
+  completed_at: string | null;
+  set_logs: SetLog[];
+};
+
+const SESSION_SELECT =
+  "id, status, started_at, completed_at, set_logs(id, exercise_id, exercise_name, area, set_number, weight, reps, completed_at)";
+
+const HISTORY_PAGE = 20;
+
+/** Sessions newest first; pass the last started_at as `before` for the next page. */
+export const listSessions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ before: z.string().datetime({ offset: true }).optional() }).parse(d ?? {}),
+  )
+  .handler(async ({ data, context }): Promise<{ sessions: WorkoutSession[]; hasMore: boolean }> => {
+    let q = context.supabase
+      .from("workout_sessions")
+      .select(SESSION_SELECT)
+      .order("started_at", { ascending: false })
+      .limit(HISTORY_PAGE + 1);
+    if (data.before) q = q.lt("started_at", data.before);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    const sessions = rows as unknown as WorkoutSession[];
+    return { sessions: sessions.slice(0, HISTORY_PAGE), hasMore: sessions.length > HISTORY_PAGE };
+  });
+
+export const getSession = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
-  .handler(async ({ data, context }) => {
-    const { supabase } = context;
-    const today = new Date().toISOString().slice(0, 10);
-
-    const { data: ex, error: e1 } = await supabase
-      .from("exercises")
-      .select("sets, completed_sets, last_completed_date")
+  .handler(async ({ data, context }): Promise<WorkoutSession | null> => {
+    const { data: row, error } = await context.supabase
+      .from("workout_sessions")
+      .select(SESSION_SELECT)
       .eq("id", data.id)
+      .order("completed_at", { referencedTable: "set_logs", ascending: true })
       .maybeSingle();
-    if (e1) throw new Error(e1.message);
-    if (!ex) throw new Error("not found");
-
-    const isToday = ex.last_completed_date === today;
-    const next = (isToday ? ex.completed_sets : 0) + 1;
-    const finished = next >= ex.sets;
-
-    // When all sets are done, reset the counter so the user can do another round
-    const newCompleted = finished ? 0 : next;
-    const newDate = finished ? null : today;
-
-    const { error: e2 } = await supabase
-      .from("exercises")
-      .update({ completed_sets: newCompleted, last_completed_date: newDate })
-      .eq("id", data.id);
-    if (e2) throw new Error(e2.message);
-    return { completed_sets: newCompleted, sets: ex.sets, finished };
+    if (error) throw new Error(error.message);
+    return row as unknown as WorkoutSession | null;
   });

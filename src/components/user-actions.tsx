@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { LogOut, Moon, Settings, Sun } from "lucide-react";
+import { History, LogOut, Moon, Settings, Sun } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,7 +38,7 @@ const item =
 
 /**
  * Profile menu for the app header: one avatar button that opens, top to bottom,
- * profile → settings → theme → sign out. Sign-out sits last, after a divider,
+ * profile → history → settings → theme → sign out. Sign-out sits last, after a divider,
  * in the destructive color so it's never hit by accident.
  */
 export function UserActions() {
@@ -88,6 +88,11 @@ export function UserActions() {
         </div>
 
         <DropdownMenuSeparator className="my-2" />
+
+        <DropdownMenuItem className={item} onSelect={() => navigate({ to: "/history" })}>
+          <History aria-hidden />
+          היסטוריית אימונים
+        </DropdownMenuItem>
 
         {/* Settings — no page yet; shown (not hidden) so it's clear it's coming. */}
         <DropdownMenuItem disabled className={item}>
