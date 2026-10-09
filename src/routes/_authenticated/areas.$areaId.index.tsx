@@ -167,7 +167,7 @@ function ExerciseCard({
           {done > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary tabular-nums">
               <Check className="size-3.5" aria-hidden />
-              {done}/{ex.sets} באימון
+              {done % ex.sets || ex.sets}/{ex.sets} באימון
             </span>
           )}
         </div>
@@ -177,7 +177,7 @@ function ExerciseCard({
           className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-[filter,transform] hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Play className="size-4 fill-current" aria-hidden />
-          {done > 0 && done < ex.sets ? "המשך אימון" : "התחל אימון"}
+          {done % ex.sets > 0 ? "המשך אימון" : "התחל אימון"}
         </Link>
       </div>
     </article>
