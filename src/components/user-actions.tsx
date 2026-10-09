@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 
 type Profile = { name: string; email: string };
 
-function useProfile() {
+export function useProfile() {
   const [profile, setProfile] = useState<Profile | null>(null);
   useEffect(() => {
     supabase.auth

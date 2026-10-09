@@ -18,7 +18,7 @@ const GUTTER = 32;
 interface FloatingMenuProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Content shown beside the hamburger while the menu is closed. */
+  /** Content shown after the hamburger while the menu is closed. */
   bar?: React.ReactNode;
   /** Expanded panel content. */
   children: React.ReactNode;
@@ -145,20 +145,11 @@ export function FloatingMenu({
           <div ref={panelRef}>{children}</div>
         </div>
 
-        {/* Bottom bar: closed-state content + hamburger */}
+        {/* Bottom bar: hamburger first (start side in RTL), then the closed-state content */}
         <div
-          className="absolute inset-x-0 bottom-0 flex items-center gap-2 ps-2 pe-1.5"
+          className="absolute inset-x-0 bottom-0 flex items-center gap-1 ps-1.5 pe-2"
           style={{ height: BAR_HEIGHT }}
         >
-          <div
-            inert={open}
-            className={cn(
-              "flex min-w-0 flex-1 items-center transition-opacity",
-              open ? "opacity-0 duration-100" : "opacity-100 delay-200 duration-300",
-            )}
-          >
-            {bar}
-          </div>
           <button
             ref={toggleRef}
             type="button"
@@ -175,6 +166,15 @@ export function FloatingMenu({
           >
             <MenuToggleIcon open={open} className="size-6" duration={reduce ? 0 : 500} />
           </button>
+          <div
+            inert={open}
+            className={cn(
+              "flex min-w-0 flex-1 items-center transition-opacity",
+              open ? "opacity-0 duration-100" : "opacity-100 delay-200 duration-300",
+            )}
+          >
+            {bar}
+          </div>
         </div>
       </motion.div>
     </div>
