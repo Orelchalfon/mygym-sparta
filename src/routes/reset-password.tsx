@@ -60,7 +60,7 @@ function ResetPasswordPage() {
 
   if (status === "checking") {
     return (
-      <AuthShell>
+      <AuthShell step={3}>
         <div role="status" className="flex items-center justify-center gap-2 text-muted-foreground">
           <Loader2 className="size-5 animate-spin" aria-hidden />
           בודקים את הקישור...
@@ -71,7 +71,7 @@ function ResetPasswordPage() {
 
   if (status === "invalid") {
     return (
-      <AuthShell>
+      <AuthShell step={3}>
         <div className="flex flex-col items-center gap-4 text-center">
           <span className="flex size-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive">
             <TriangleAlert className="size-7" aria-hidden />
@@ -92,7 +92,7 @@ function ResetPasswordPage() {
   }
 
   return (
-    <AuthShell>
+    <AuthShell step={3}>
       <div className="flex flex-col gap-6">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-foreground">בחירת סיסמה חדשה</h1>
