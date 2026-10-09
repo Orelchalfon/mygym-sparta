@@ -60,10 +60,15 @@ export function SignUpForm({
     });
     setResending(false);
     if (resendError) {
+      const quotaHit = resendError.code === "over_email_send_rate_limit";
       const rateLimited =
         resendError.status === 429 || resendError.message.toLowerCase().includes("rate");
       toast.error(
-        rateLimited ? "שלחנו מייל ממש עכשיו. נסו שוב בעוד דקה." : "לא הצלחנו לשלוח שוב. נסו שוב.",
+        quotaHit
+          ? authErrorMessage(resendError)
+          : rateLimited
+            ? "שלחנו מייל ממש עכשיו. נסו שוב בעוד דקה."
+            : "לא הצלחנו לשלוח שוב. נסו שוב.",
       );
       if (rateLimited) setCooldown(RESEND_COOLDOWN_S);
       return;

@@ -22,7 +22,7 @@ function expiresAtIso(expiresInSec: number): string {
 
 export const exchangeSpotifyCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
+  .validator(
     (data: { code: string; verifier: string; redirectUri: string }) => data,
   )
   .handler(async ({ data, context }) => {
@@ -147,7 +147,7 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
 
 export const transferSpotifyPlayback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { deviceId: string; play?: boolean }) => data)
+  .validator((data: { deviceId: string; play?: boolean }) => data)
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("user_spotify_tokens")

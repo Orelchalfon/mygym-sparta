@@ -117,7 +117,7 @@ export function AuthSwitch({ mode, onModeChange, redirectTo }: AuthSwitchProps) 
         >
           <div
             className={cn(
-              "relative -start-full flex h-full w-[200%] bg-neutral-950 text-white",
+              "relative -inset-s-full flex h-full w-[200%] bg-neutral-950 text-white",
               SLIDE,
               isSignUp && "translate-x-[calc(var(--auth-dir)*50%)]",
             )}
