@@ -9,12 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PasswordInput } from "@/components/auth/password-input";
 import { authErrorMessage } from "@/components/auth/auth-errors";
+import { authCallbackUrl } from "@/lib/auth-redirect";
 
 // Supabase rate-limits confirmation emails per address (~60 s), so the resend button waits
 // out the same window instead of letting the user hit the limit error.
 const RESEND_COOLDOWN_S = 60;
-
-const confirmRedirectTo = () => window.location.origin;
 
 interface SignUpFormProps {
   /** Shared with the sign-in form so the address survives a mode switch. */
@@ -24,6 +23,8 @@ interface SignUpFormProps {
   onBackToSignIn: () => void;
   /** First field, focused by AuthSwitch after the user switches into this mode. */
   firstFieldRef?: RefObject<HTMLInputElement | null>;
+  /** Same-origin path to open after signing up (directly, or via the email link). */
+  redirectTo: string;
 }
 
 export function SignUpForm({
@@ -31,6 +32,7 @@ export function SignUpForm({
   onEmailChange,
   onBackToSignIn,
   firstFieldRef,
+  redirectTo,
 }: SignUpFormProps) {
   const navigate = useNavigate();
   const [password, setPassword] = useState("");
@@ -54,7 +56,7 @@ export function SignUpForm({
     const { error: resendError } = await supabase.auth.resend({
       type: "signup",
       email,
-      options: { emailRedirectTo: confirmRedirectTo() },
+      options: { emailRedirectTo: authCallbackUrl(redirectTo) },
     });
     setResending(false);
     if (resendError) {
@@ -86,7 +88,7 @@ export function SignUpForm({
       email,
       password,
       options: {
-        emailRedirectTo: confirmRedirectTo(),
+        emailRedirectTo: authCallbackUrl(redirectTo),
         data: { full_name: fullName.trim() },
       },
     });
@@ -100,7 +102,7 @@ export function SignUpForm({
     // Email confirmation disabled → we already have a session.
     if (authData.session) {
       toast.success("נרשמת בהצלחה! ברוך הבא לספרטא");
-      navigate({ to: "/areas" });
+      navigate({ href: redirectTo });
       return;
     }
 

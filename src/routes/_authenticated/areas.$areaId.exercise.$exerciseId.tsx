@@ -11,6 +11,7 @@ import { MachineImage } from "@/components/machine-image";
 import { X, Check, SkipForward, Repeat, Plus, Loader2, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$exerciseId")({
   loader: ({ context }) =>
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$ex
       context.queryClient.fetchQuery(activeSessionQO),
     ]),
   head: ({ params }) => {
-    const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}/exercise/${params.exerciseId}`;
+    const url = `${SITE_URL}/areas/${params.areaId}/exercise/${params.exerciseId}`;
     const title = "אימון פעיל — אימון אישי";
     const desc = "בצע סטים, עקוב אחר התקדמות והפעל טיימר מנוחה אוטומטי בין סטים.";
     return {

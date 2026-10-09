@@ -5,14 +5,17 @@ import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
+    let user = null;
     try {
       const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) throw redirect({ to: "/auth" });
-      return { user: data.user };
+      if (!error) user = data.user;
     } catch {
-      throw redirect({ to: "/auth" });
+      // Treat a failed auth check as signed out.
     }
+    // Keep the requested page (e.g. a machine's QR link) so sign-in can return to it.
+    if (!user) throw redirect({ to: "/auth", search: { redirect: location.href } });
+    return { user };
   },
   component: () => (
     <>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://mygym-sparta.lovable.app/sitemap.xml
+Sitemap: https://mygym-sparta.netlify.app/sitemap.xml

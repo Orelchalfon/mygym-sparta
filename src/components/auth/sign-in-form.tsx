@@ -1,4 +1,4 @@
-import { useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState, type FormEvent, type RefObject } from "react";
 import { Loader2, LogIn, Mail } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,9 +14,11 @@ interface SignInFormProps {
   onEmailChange: (email: string) => void;
   /** First field, focused by AuthSwitch after the user switches into this mode. */
   firstFieldRef?: RefObject<HTMLInputElement | null>;
+  /** Same-origin path to open after signing in. */
+  redirectTo: string;
 }
 
-export function SignInForm({ email, onEmailChange, firstFieldRef }: SignInFormProps) {
+export function SignInForm({ email, onEmailChange, firstFieldRef, redirectTo }: SignInFormProps) {
   const navigate = useNavigate();
   const passwordRef = useRef<HTMLInputElement>(null);
   const [password, setPassword] = useState("");
@@ -38,7 +40,7 @@ export function SignInForm({ email, onEmailChange, firstFieldRef }: SignInFormPr
       return;
     }
 
-    navigate({ to: "/areas" });
+    navigate({ href: redirectTo });
   };
 
   return (
@@ -76,7 +78,16 @@ export function SignInForm({ email, onEmailChange, firstFieldRef }: SignInFormPr
         </div>
 
         <div className="flex flex-col gap-2">
-          <Label htmlFor="signin-password">סיסמה</Label>
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="signin-password">סיסמה</Label>
+            <Link
+              to="/forgot-password"
+              search={email.trim() ? { email: email.trim() } : {}}
+              className="-my-3 flex min-h-11 items-center rounded-md px-1 text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              שכחתם סיסמה?
+            </Link>
+          </div>
           <PasswordInput
             inputRef={passwordRef}
             id="signin-password"

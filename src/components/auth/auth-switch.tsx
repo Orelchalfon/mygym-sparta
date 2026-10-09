@@ -40,9 +40,11 @@ const SLIDE = "[transition:translate_600ms_ease-in-out]";
 interface AuthSwitchProps {
   mode: AuthMode;
   onModeChange: (mode: AuthMode) => void;
+  /** Same-origin path to open after a successful sign-in/sign-up. */
+  redirectTo: string;
 }
 
-export function AuthSwitch({ mode, onModeChange }: AuthSwitchProps) {
+export function AuthSwitch({ mode, onModeChange, redirectTo }: AuthSwitchProps) {
   const isSignUp = mode === "signup";
   // Email is the only value carried across modes; passwords stay per-form, in memory.
   const [email, setEmail] = useState("");
@@ -88,7 +90,12 @@ export function AuthSwitch({ mode, onModeChange }: AuthSwitchProps) {
 
       <div className="relative w-full overflow-clip rounded-3xl border bg-card shadow-2xl [--auth-dir:1] rtl:[--auth-dir:-1] md:grid md:min-h-[600px] md:grid-cols-2">
         <div className={paneClass(!isSignUp)} inert={isSignUp}>
-          <SignInForm email={email} onEmailChange={setEmail} firstFieldRef={signInFirstField} />
+          <SignInForm
+            email={email}
+            onEmailChange={setEmail}
+            firstFieldRef={signInFirstField}
+            redirectTo={redirectTo}
+          />
         </div>
         <div className={paneClass(isSignUp)} inert={!isSignUp}>
           <SignUpForm
@@ -96,6 +103,7 @@ export function AuthSwitch({ mode, onModeChange }: AuthSwitchProps) {
             onEmailChange={setEmail}
             onBackToSignIn={() => onModeChange("signin")}
             firstFieldRef={signUpFirstField}
+            redirectTo={redirectTo}
           />
         </div>
 
