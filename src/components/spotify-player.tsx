@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
+import { useCallback } from "react";
 import {
   Play,
   Pause,
@@ -21,43 +20,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { toast } from "sonner";
-import {
-  getSpotifyAccessToken,
-  disconnectSpotify,
-  getSpotifyClientId,
-  transferSpotifyPlayback,
-} from "@/lib/spotify.functions";
-import { beginSpotifyLogin } from "@/lib/spotify-pkce";
-
-declare global {
-  interface Window {
-    Spotify?: any;
-    onSpotifyWebPlaybackSDKReady?: () => void;
-  }
-}
-
-type TrackInfo = {
-  name: string;
-  artist: string;
-  image?: string;
-  duration: number;
-};
-
-let sdkPromise: Promise<void> | null = null;
-function loadSpotifySDK(): Promise<void> {
-  if (sdkPromise) return sdkPromise;
-  sdkPromise = new Promise<void>((resolve) => {
-    if (typeof window === "undefined") return resolve();
-    if (window.Spotify) return resolve();
-    window.onSpotifyWebPlaybackSDKReady = () => resolve();
-    const s = document.createElement("script");
-    s.src = "https://sdk.scdn.co/spotify-player.js";
-    s.async = true;
-    document.body.appendChild(s);
-  });
-  return sdkPromise;
-}
+import { useMusic } from "@/components/music/music-provider";
 
 function fmtTime(ms: number): string {
   if (!Number.isFinite(ms) || ms < 0) ms = 0;
@@ -67,184 +30,33 @@ function fmtTime(ms: number): string {
   return `${m}:${r.toString().padStart(2, "0")}`;
 }
 
+/**
+ * Spotify player UI. The bottom bar is desktop-only (the mobile dock takes its place);
+ * the full-player drawer is shared, so the dock can open it too.
+ */
 export function SpotifyPlayer() {
-  const getToken = useServerFn(getSpotifyAccessToken);
-  const disconnect = useServerFn(disconnectSpotify);
-  const transferPlayback = useServerFn(transferSpotifyPlayback);
+  const {
+    connected,
+    ready,
+    track,
+    paused,
+    position,
+    volume,
+    deviceId,
+    connect: handleConnect,
+    disconnect: handleDisconnect,
+    togglePlay,
+    next,
+    prev,
+    seek,
+    setVolume,
+    claimDevice: handleClaimDevice,
+    playerOpen: expanded,
+    setPlayerOpen: setExpanded,
+  } = useMusic();
 
-  const [connected, setConnected] = useState<boolean | null>(null);
-  const [ready, setReady] = useState(false);
-  const [track, setTrack] = useState<TrackInfo | null>(null);
-  const [paused, setPaused] = useState(true);
-  const [position, setPosition] = useState(0);
-  const [volume, setVolume] = useState(0.5);
-  const [expanded, setExpanded] = useState(false);
-  const [deviceId, setDeviceId] = useState<string | null>(null);
-  const transferredRef = useRef(false);
-  const playerRef = useRef<any>(null);
-
-  // Check connection status on mount.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const { accessToken } = await getToken();
-        if (cancelled) return;
-        setConnected(!!accessToken);
-      } catch {
-        if (!cancelled) setConnected(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [getToken]);
-
-  // Initialize SDK when connected.
-  useEffect(() => {
-    if (!connected) return;
-    let disposed = false;
-    let poll: ReturnType<typeof setInterval> | null = null;
-    let tick: ReturnType<typeof setInterval> | null = null;
-
-    (async () => {
-      await loadSpotifySDK();
-      if (disposed || !window.Spotify) return;
-
-      const player = new window.Spotify.Player({
-        name: "Workout Buddy",
-        getOAuthToken: async (cb: (t: string) => void) => {
-          try {
-            const { accessToken } = await getToken();
-            if (accessToken) cb(accessToken);
-          } catch (e) {
-            console.error("Spotify token fetch failed", e);
-          }
-        },
-        volume: 0.5,
-      });
-
-      player.addListener("ready", async ({ device_id }: any) => {
-        if (disposed) return;
-        setReady(true);
-        setDeviceId(device_id);
-        if (!transferredRef.current) {
-          transferredRef.current = true;
-          try {
-            await transferPlayback({
-              data: { deviceId: device_id, play: false },
-            });
-          } catch (e) {
-            console.error("Transfer playback failed", e);
-          }
-        }
-      });
-      player.addListener("not_ready", () => setReady(false));
-      player.addListener("initialization_error", ({ message }: any) =>
-        console.error("Spotify init error:", message),
-      );
-      player.addListener("authentication_error", ({ message }: any) => {
-        console.error("Spotify auth error:", message);
-        toast.error("החיבור לספוטיפיי פג — התחבר מחדש");
-        setConnected(false);
-      });
-      player.addListener("account_error", ({ message }: any) => {
-        console.error("Spotify account error:", message);
-        toast.error("נדרש מנוי Spotify Premium");
-      });
-      player.addListener("player_state_changed", (state: any) => {
-        if (!state) return;
-        const t = state.track_window?.current_track;
-        if (t) {
-          setTrack({
-            name: t.name,
-            artist: t.artists?.map((a: any) => a.name).join(", ") ?? "",
-            image: t.album?.images?.[0]?.url,
-            duration: state.duration ?? t.duration_ms ?? 0,
-          });
-        }
-        setPaused(state.paused);
-        setPosition(state.position ?? 0);
-      });
-
-      await player.connect();
-      playerRef.current = player;
-
-      poll = setInterval(async () => {
-        const state = await player.getCurrentState();
-        if (!state) return;
-        setPaused(state.paused);
-        setPosition(state.position ?? 0);
-      }, 3000);
-
-      tick = setInterval(() => {
-        setPosition((p) => (paused ? p : p + 500));
-      }, 500);
-    })();
-
-    return () => {
-      disposed = true;
-      if (poll) clearInterval(poll);
-      if (tick) clearInterval(tick);
-      if (playerRef.current) {
-        playerRef.current.disconnect();
-        playerRef.current = null;
-      }
-      setReady(false);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connected, getToken, transferPlayback]);
-
-  const handleConnect = async () => {
-    try {
-      const { clientId } = await getSpotifyClientId();
-      if (!clientId) throw new Error("Spotify not configured");
-      await beginSpotifyLogin(clientId);
-    } catch (e: any) {
-      toast.error("לא הצלחנו להתחבר לספוטיפיי. נסה שוב.");
-    }
-  };
-
-  const handleDisconnect = async () => {
-    try {
-      await disconnect();
-      setConnected(false);
-      setTrack(null);
-      setExpanded(false);
-      toast.success("ספוטיפיי נותק");
-    } catch {
-      toast.error("הניתוק נכשל");
-    }
-  };
-
-  const togglePlay = () => playerRef.current?.togglePlay();
-  const next = () => playerRef.current?.nextTrack();
-  const prev = () => playerRef.current?.previousTrack();
-
-  const handleVolume = useCallback((v: number[]) => {
-    const vol = (v[0] ?? 0) / 100;
-    setVolume(vol);
-    playerRef.current?.setVolume(vol);
-  }, []);
-
-  const handleSeek = useCallback((v: number[]) => {
-    const pos = v[0] ?? 0;
-    setPosition(pos);
-    playerRef.current?.seek(pos);
-  }, []);
-
-  const handleClaimDevice = async () => {
-    if (!deviceId) return;
-    try {
-      const res = await transferPlayback({
-        data: { deviceId, play: !paused },
-      });
-      if (res.ok) toast.success("מנגן במכשיר הזה");
-      else toast.error("לא הצלחנו להעביר — הפעל שיר בספוטיפיי קודם");
-    } catch {
-      toast.error("החלפת המכשיר נכשלה");
-    }
-  };
+  const handleVolume = useCallback((v: number[]) => setVolume((v[0] ?? 0) / 100), [setVolume]);
+  const handleSeek = useCallback((v: number[]) => seek(v[0] ?? 0), [seek]);
 
   if (connected === null) return null;
 
@@ -252,7 +64,7 @@ export function SpotifyPlayer() {
     return (
       <div
         dir="ltr"
-        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        className="fixed bottom-0 inset-x-0 z-50 hidden border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-card/80 md:block"
       >
         <div className="mx-auto flex h-[72px] max-w-3xl items-center justify-center px-3">
           <Button
@@ -275,7 +87,7 @@ export function SpotifyPlayer() {
     <Drawer open={expanded} onOpenChange={setExpanded}>
       <div
         dir="ltr"
-        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-card/80"
+        className="fixed bottom-0 inset-x-0 z-50 hidden border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-card/80 md:block"
       >
         <div className="mx-auto flex h-[72px] max-w-3xl items-center gap-3 px-3">
           <DrawerTrigger asChild>

@@ -33,28 +33,34 @@ function useProfile() {
   return profile;
 }
 
+/** Signs out and drops all cached user data before returning to /auth. */
+export function useSignOut() {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+  return async function signOut() {
+    await qc.cancelQueries();
+    qc.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/auth", replace: true });
+  };
+}
+
 const item =
   "min-h-11 cursor-pointer gap-3 rounded-lg px-3 text-[15px] font-medium [&_svg]:size-5 [&_svg]:shrink-0";
 
 /**
  * Profile menu for the app header: one avatar button that opens, top to bottom,
  * profile → history → settings → theme → sign out. Sign-out sits last, after a divider,
- * in the destructive color so it's never hit by accident.
+ * in the destructive color so it's never hit by accident. Desktop only — on mobile the
+ * same actions live in the bottom dock.
  */
 export function UserActions() {
   const profile = useProfile();
   const navigate = useNavigate();
-  const qc = useQueryClient();
+  const signOut = useSignOut();
   const { resolvedTheme, setTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
   const initial = profile?.name.trim().charAt(0).toUpperCase() || "?";
-
-  async function signOut() {
-    await qc.cancelQueries();
-    qc.clear();
-    await supabase.auth.signOut();
-    navigate({ to: "/auth", replace: true });
-  }
 
   return (
     <DropdownMenu dir="rtl">
@@ -63,7 +69,7 @@ export function UserActions() {
           variant="ghost"
           size="icon-touch"
           aria-label={profile ? `תפריט פרופיל: ${profile.name}` : "תפריט פרופיל"}
-          className="rounded-full"
+          className="rounded-full max-md:hidden"
         >
           <span className="grid size-9 place-items-center rounded-full bg-primary text-sm font-black text-primary-foreground ring-2 ring-background">
             {initial}

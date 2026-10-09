@@ -1,6 +1,8 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { SpotifyPlayer } from "@/components/spotify-player";
+import { MusicProvider } from "@/components/music/music-provider";
+import { MobileDock } from "@/components/mobile-dock";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 export const Route = createFileRoute("/_authenticated")({
@@ -18,12 +20,14 @@ export const Route = createFileRoute("/_authenticated")({
     return { user };
   },
   component: () => (
-    <>
-      <div className="pb-[calc(72px+env(safe-area-inset-bottom))]">
+    <MusicProvider>
+      {/* Mobile: room for the floating dock. Desktop: room for the Spotify bar. */}
+      <div className="pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-[calc(72px+env(safe-area-inset-bottom))]">
         <Outlet />
       </div>
       <SpotifyPlayer />
+      <MobileDock />
       <InstallPrompt />
-    </>
+    </MusicProvider>
   ),
 });
