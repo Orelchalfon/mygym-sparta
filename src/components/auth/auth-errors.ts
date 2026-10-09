@@ -1,6 +1,13 @@
 /** Maps Supabase auth errors to clear Hebrew messages with a recovery hint. */
-export function authErrorMessage(err: { message?: string; status?: number } | null | undefined) {
+export function authErrorMessage(
+  err: { message?: string; status?: number; code?: string } | null | undefined,
+) {
   const msg = err?.message?.toLowerCase() ?? "";
+  // Project-wide email quota (Supabase mailer), not the user's own attempts — check
+  // before the generic 429 branch so we don't blame the user.
+  if (err?.code === "over_email_send_rate_limit" || msg.includes("email rate limit")) {
+    return "לא הצלחנו לשלוח את המייל כרגע — מכסת המיילים של השרת נוצלה. נסו שוב מאוחר יותר.";
+  }
   if (msg.includes("invalid login credentials") || msg.includes("invalid credentials")) {
     return "האימייל או הסיסמה שגויים. בדקו ונסו שוב.";
   }
@@ -19,7 +26,13 @@ export function authErrorMessage(err: { message?: string; status?: number } | nu
   if (msg.includes("unable to validate email") || msg.includes("invalid email")) {
     return "כתובת האימייל אינה תקינה. בדקו והזינו שוב.";
   }
-  if (msg.includes("too many requests") || err?.status === 429) {
+  if (msg.includes("different from the old password") || msg.includes("same_password")) {
+    return "הסיסמה החדשה זהה לישנה. בחרו סיסמה אחרת.";
+  }
+  if (msg.includes("auth session missing") || msg.includes("session_not_found")) {
+    return "הקישור פג תוקף. בקשו קישור חדש לאיפוס הסיסמה.";
+  }
+  if (msg.includes("too many requests") || msg.includes("rate limit") || err?.status === 429) {
     return "יותר מדי ניסיונות. נסו שוב בעוד כמה דקות.";
   }
   return import.meta.env.DEV && err?.message

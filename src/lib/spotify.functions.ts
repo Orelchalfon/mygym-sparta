@@ -22,9 +22,7 @@ function expiresAtIso(expiresInSec: number): string {
 
 export const exchangeSpotifyCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator(
-    (data: { code: string; verifier: string; redirectUri: string }) => data,
-  )
+  .validator((data: { code: string; verifier: string; redirectUri: string }) => data)
   .handler(async ({ data, context }) => {
     const clientId = process.env.SPOTIFY_CLIENT_ID;
     const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
@@ -44,8 +42,7 @@ export const exchangeSpotifyCode = createServerFn({ method: "POST" })
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Authorization:
-          "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+        Authorization: "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
       },
       body,
     });
@@ -61,15 +58,13 @@ export const exchangeSpotifyCode = createServerFn({ method: "POST" })
       throw new Error("Spotify did not return a refresh token");
     }
 
-    const { error } = await context.supabase
-      .from("user_spotify_tokens")
-      .upsert({
-        user_id: context.userId,
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        expires_at: expiresAtIso(tokens.expires_in),
-        scope: tokens.scope ?? null,
-      });
+    const { error } = await context.supabase.from("user_spotify_tokens").upsert({
+      user_id: context.userId,
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      expires_at: expiresAtIso(tokens.expires_in),
+      scope: tokens.scope ?? null,
+    });
 
     if (error) {
       console.error("Failed to store Spotify tokens", error);
@@ -112,8 +107,7 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
-        Authorization:
-          "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
+        Authorization: "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
       },
       body,
     });
@@ -122,10 +116,7 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
       const text = await res.text();
       console.error("Spotify token refresh failed", res.status, text);
       // Token likely revoked — delete row so user can reconnect.
-      await context.supabase
-        .from("user_spotify_tokens")
-        .delete()
-        .eq("user_id", context.userId);
+      await context.supabase.from("user_spotify_tokens").delete().eq("user_id", context.userId);
       return { accessToken: null as string | null };
     }
 
@@ -147,7 +138,7 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
 
 export const transferSpotifyPlayback = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((data: { deviceId: string; play?: boolean }) => data)
+  .validator((data: { deviceId: string; play?: boolean }) => data)
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("user_spotify_tokens")

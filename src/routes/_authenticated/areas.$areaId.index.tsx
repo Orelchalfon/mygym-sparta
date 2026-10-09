@@ -11,6 +11,7 @@ import { AppHeader } from "@/components/app-header";
 import { MachineImage } from "@/components/machine-image";
 import { ExerciseFormDialog } from "@/components/exercise-form-dialog";
 import { useState } from "react";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   loader: ({ context }) =>
@@ -21,7 +22,7 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
   head: ({ params }) => {
     const area = areaName(params.areaId);
     const desc = `מכשירי האימון באזור ${area} — נהל משקל, חזרות וסטים והתחל אימון עם טיימר מנוחה אוטומטי.`;
-    const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}`;
+    const url = `${SITE_URL}/areas/${params.areaId}`;
     return {
       meta: [
         { title: `${area} — מכשירי אימון` },

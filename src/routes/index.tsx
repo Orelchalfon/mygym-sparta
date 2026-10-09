@@ -12,8 +12,7 @@ import { FinalCTA } from "@/components/landing/final-cta";
 import { SiteFooter } from "@/components/landing/site-footer";
 import { SHOW_PRICING } from "@/components/landing/content";
 import heroImage from "@/assets/sparta-hero.jpg";
-
-const SITE_URL = "https://mygym-sparta.lovable.app";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,

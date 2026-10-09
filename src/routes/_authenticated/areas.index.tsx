@@ -10,6 +10,7 @@ import { UserActions } from "@/components/user-actions";
 import { MachineImage } from "@/components/machine-image";
 import { ActiveWorkoutBar } from "@/components/workout/active-workout-bar";
 import { useEffect, useState } from "react";
+import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/areas/")({
   loader: ({ context }) =>
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/_authenticated/areas/")({
         content:
           "בחר אזור אימון בחדר הכושר — חזה, גב, רגליים, כתפיים, ידיים ובטן — וצפה במכשירים הזמינים בכל אזור.",
       },
-      { property: "og:url", content: "https://mygym-sparta.lovable.app/areas" },
+      { property: "og:url", content: `${SITE_URL}/areas` },
       { name: "twitter:title", content: "אזורי אימון — אימון אישי" },
       {
         name: "twitter:description",
@@ -40,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/areas/")({
       },
       { name: "robots", content: "noindex" },
     ],
-    links: [{ rel: "canonical", href: "https://mygym-sparta.lovable.app/areas" }],
+    links: [{ rel: "canonical", href: `${SITE_URL}/areas` }],
   }),
   component: AreasPage,
 });

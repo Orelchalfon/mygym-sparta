@@ -39,7 +39,7 @@ export const listExercises = createServerFn({ method: "GET" })
 
 export const createExercise = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         area: z.string(),
@@ -67,7 +67,7 @@ export const createExercise = createServerFn({ method: "POST" })
 
 export const updateExercise = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z
       .object({
         id: z.string().uuid(),
@@ -95,7 +95,7 @@ export const updateExercise = createServerFn({ method: "POST" })
 
 export const deleteExercise = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase } = context;
     const { error } = await supabase.from("exercises").delete().eq("id", data.id);
@@ -114,7 +114,7 @@ export type LogSetResult = {
 /** "סיימתי סט" — atomic and idempotent per clientEventId (see log_set in the migrations). */
 export const logSet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ exerciseId: z.string().uuid(), clientEventId: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data, context }): Promise<LogSetResult> => {
@@ -144,7 +144,7 @@ export const getActiveSession = createServerFn({ method: "GET" })
 
 export const finishSession = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ sessionId: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ sessionId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { error } = await context.supabase.rpc("finish_session", {
       p_session_id: data.sessionId,
@@ -180,7 +180,7 @@ const HISTORY_PAGE = 20;
 /** Sessions newest first; pass the last started_at as `before` for the next page. */
 export const listSessions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) =>
+  .validator((d) =>
     z.object({ before: z.string().datetime({ offset: true }).optional() }).parse(d ?? {}),
   )
   .handler(async ({ data, context }): Promise<{ sessions: WorkoutSession[]; hasMore: boolean }> => {
@@ -198,7 +198,7 @@ export const listSessions = createServerFn({ method: "GET" })
 
 export const getSession = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .validator((d) => z.object({ id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }): Promise<WorkoutSession | null> => {
     const { data: row, error } = await context.supabase
       .from("workout_sessions")
