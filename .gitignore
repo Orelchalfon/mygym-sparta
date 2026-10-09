@@ -39,3 +39,4 @@ src/assets/images/
 # Local MCP config (contains secrets)
 .mcp.json
 handoff/
+bash.exe.stackdump

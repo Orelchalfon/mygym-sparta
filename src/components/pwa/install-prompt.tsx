@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useInstallPrompt } from "@/components/pwa/use-install-prompt";
 
 /**
- * Post-sign-in "install the app" banner. Slides up above the Spotify player.
+ * Post-sign-in "install the app" banner. Slides up above the mobile dock / Spotify player.
  * On Android/Chrome/Edge it triggers the native install dialog; on iOS it shows
  * the manual Share → Add to Home Screen steps.
  */
@@ -23,7 +23,7 @@ export function InstallPrompt() {
           animate={{ opacity: 1, y: 0 }}
           exit={reduce ? { opacity: 0 } : { opacity: 0, y: 24 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed inset-x-3 bottom-[84px] z-[60] mx-auto max-w-md rounded-2xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/85"
+          className="fixed inset-x-3 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[60] md:bottom-[84px] mx-auto max-w-md rounded-2xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/85"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         >
           <button
@@ -68,10 +68,7 @@ export function InstallPrompt() {
             </div>
           ) : (
             <div className="mt-3 flex gap-2">
-              <Button
-                onClick={promptInstall}
-                className="h-11 flex-1 gap-2 font-bold"
-              >
+              <Button onClick={promptInstall} className="h-11 flex-1 gap-2 font-bold">
                 <Download className="size-4" />
                 התקן עכשיו
               </Button>
