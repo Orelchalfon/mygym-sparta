@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
+import { useSuspenseQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { listExercises, completeSet } from "@/lib/workout.functions";
+import { logSet } from "@/lib/workout.functions";
+import { activeSessionQO, exercisesQO } from "@/lib/workout.queries";
 import { REST_SECONDS } from "@/lib/workout.constants";
 import { getMachine } from "@/lib/machines";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -11,13 +12,13 @@ import { X, Check, SkipForward, Repeat, Plus, Loader2, Trophy } from "lucide-rea
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-const exercisesQO = queryOptions({
-  queryKey: ["exercises"],
-  queryFn: () => listExercises(),
-});
-
 export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$exerciseId")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(exercisesQO),
+      // Always refetch: progress must reflect sets logged from another tab/device.
+      context.queryClient.fetchQuery(activeSessionQO),
+    ]),
   head: ({ params }) => {
     const url = `https://mygym-sparta.lovable.app/areas/${params.areaId}/exercise/${params.exerciseId}`;
     const title = "אימון פעיל — אימון אישי";
@@ -99,14 +100,15 @@ function useWakeLock() {
 function ExercisePage() {
   const { areaId, exerciseId } = Route.useParams();
   const { data: all } = useSuspenseQuery(exercisesQO);
+  const { data: session } = useSuspenseQuery(activeSessionQO);
   const exercise = all.find((e) => e.id === exerciseId);
   const navigate = useNavigate();
   const qc = useQueryClient();
-  const completeFn = useServerFn(completeSet);
+  const logSetFn = useServerFn(logSet);
 
-  const today = new Date().toISOString().slice(0, 10);
-  const initialDone =
-    exercise && exercise.last_completed_date === today ? exercise.completed_sets : 0;
+  // Progress within the current round: after a full round the counter starts over.
+  const doneInSession = session?.counts[exerciseId] ?? 0;
+  const initialDone = exercise ? doneInSession % Math.max(exercise.sets, 1) : 0;
 
   const [completedNow, setCompletedNow] = useState(initialDone);
   const [rest, setRest] = useState<Rest | null>(null);
@@ -115,6 +117,8 @@ function ExercisePage() {
   const [finished, setFinished] = useState(false);
   const [announce, setAnnounce] = useState("");
   const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Id of the set being saved; kept across retries so the server logs it once. */
+  const pendingEvent = useRef<string | null>(null);
 
   useWakeLock();
 
@@ -185,15 +189,19 @@ function ExercisePage() {
     if (busy) return;
     setBusy(true);
     try {
-      const res = await completeFn({ data: { id: exerciseId } });
-      qc.invalidateQueries({ queryKey: ["exercises"] });
+      pendingEvent.current ??= crypto.randomUUID();
+      const res = await logSetFn({
+        data: { exerciseId, clientEventId: pendingEvent.current },
+      });
+      pendingEvent.current = null;
+      qc.invalidateQueries({ queryKey: activeSessionQO.queryKey });
       if (res.finished) {
         setCompletedNow(totalSets);
         setFinished(true);
         navigator.vibrate?.(80);
         exitTimer.current = setTimeout(exit, 1600);
       } else {
-        setCompletedNow(res.completed_sets);
+        setCompletedNow(res.set_number % res.target_sets);
         const r = { endsAt: Date.now() + REST_SECONDS * 1000, total: REST_SECONDS };
         writeRest(exerciseId, r);
         setNow(Date.now());

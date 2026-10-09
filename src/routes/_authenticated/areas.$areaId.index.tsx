@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
-import { listExercises, type Exercise } from "@/lib/workout.functions";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import type { Exercise } from "@/lib/workout.functions";
+import { activeSessionQO, exercisesQO } from "@/lib/workout.queries";
 import { areaName } from "@/lib/workout.constants";
 import { getMachine } from "@/lib/machines";
 import { Button } from "@/components/ui/button";
@@ -11,13 +12,12 @@ import { MachineImage } from "@/components/machine-image";
 import { ExerciseFormDialog } from "@/components/exercise-form-dialog";
 import { useState } from "react";
 
-const exercisesQO = queryOptions({
-  queryKey: ["exercises"],
-  queryFn: () => listExercises(),
-});
-
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
-  loader: ({ context }) => context.queryClient.ensureQueryData(exercisesQO),
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(exercisesQO),
+      context.queryClient.ensureQueryData(activeSessionQO),
+    ]),
   head: ({ params }) => {
     const area = areaName(params.areaId);
     const desc = `מכשירי האימון באזור ${area} — נהל משקל, חזרות וסטים והתחל אימון עם טיימר מנוחה אוטומטי.`;
@@ -42,6 +42,7 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
 function AreaPage() {
   const { areaId } = Route.useParams();
   const { data: all } = useSuspenseQuery(exercisesQO);
+  const { data: session } = useSuspenseQuery(activeSessionQO);
   const list = all.filter((e) => e.area === areaId);
 
   const [editing, setEditing] = useState<Exercise | null>(null);
@@ -87,7 +88,12 @@ function AreaPage() {
                   className="animate-in fade-in slide-in-from-bottom-2 [animation-duration:300ms] [animation-fill-mode:both]"
                   style={{ animationDelay: `${i * 40}ms` }}
                 >
-                  <ExerciseCard ex={ex} areaId={areaId} onEdit={() => setEditing(ex)} />
+                  <ExerciseCard
+                    ex={ex}
+                    areaId={areaId}
+                    done={session?.counts[ex.id] ?? 0}
+                    onEdit={() => setEditing(ex)}
+                  />
                 </li>
               ))}
             </ul>
@@ -106,15 +112,16 @@ function AreaPage() {
 function ExerciseCard({
   ex,
   areaId,
+  done,
   onEdit,
 }: {
   ex: Exercise;
   areaId: string;
+  /** Sets of this exercise in the active workout. */
+  done: number;
   onEdit: () => void;
 }) {
   const machine = getMachine(ex.name);
-  const today = new Date().toISOString().slice(0, 10);
-  const doneToday = ex.last_completed_date === today ? ex.completed_sets : 0;
 
   return (
     <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-lg">
@@ -157,10 +164,10 @@ function ExerciseCard({
           <span className="text-muted-foreground tabular-nums">
             {ex.sets} סטים × {ex.reps} חזרות
           </span>
-          {doneToday > 0 && (
+          {done > 0 && (
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary tabular-nums">
               <Check className="size-3.5" aria-hidden />
-              {doneToday}/{ex.sets} היום
+              {done}/{ex.sets} באימון
             </span>
           )}
         </div>
@@ -170,7 +177,7 @@ function ExerciseCard({
           className="mt-auto inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground shadow-md shadow-primary/20 transition-[filter,transform] hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         >
           <Play className="size-4 fill-current" aria-hidden />
-          {doneToday > 0 ? "המשך אימון" : "התחל אימון"}
+          {done > 0 && done < ex.sets ? "המשך אימון" : "התחל אימון"}
         </Link>
       </div>
     </article>

@@ -15,7 +15,9 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SpotifyCallbackRouteImport } from './routes/spotify.callback'
 import { Route as AuthenticatedAreasRouteImport } from './routes/_authenticated/areas'
+import { Route as AuthenticatedHistoryIndexRouteImport } from './routes/_authenticated/history.index'
 import { Route as AuthenticatedAreasIndexRouteImport } from './routes/_authenticated/areas.index'
+import { Route as AuthenticatedHistorySessionIdRouteImport } from './routes/_authenticated/history.$sessionId'
 import { Route as AuthenticatedAreasAreaIdRouteImport } from './routes/_authenticated/areas.$areaId'
 import { Route as AuthenticatedAreasAreaIdIndexRouteImport } from './routes/_authenticated/areas.$areaId.index'
 import { Route as AuthenticatedAreasAreaIdExerciseExerciseIdRouteImport } from './routes/_authenticated/areas.$areaId.exercise.$exerciseId'
@@ -49,11 +51,23 @@ const AuthenticatedAreasRoute = AuthenticatedAreasRouteImport.update({
   path: '/areas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedHistoryIndexRoute =
+  AuthenticatedHistoryIndexRouteImport.update({
+    id: '/history/',
+    path: '/history/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAreasIndexRoute = AuthenticatedAreasIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAreasRoute,
 } as any)
+const AuthenticatedHistorySessionIdRoute =
+  AuthenticatedHistorySessionIdRouteImport.update({
+    id: '/history/$sessionId',
+    path: '/history/$sessionId',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAreasAreaIdRoute =
   AuthenticatedAreasAreaIdRouteImport.update({
     id: '/$areaId',
@@ -80,7 +94,9 @@ export interface FileRoutesByFullPath {
   '/areas': typeof AuthenticatedAreasRouteWithChildren
   '/spotify/callback': typeof SpotifyCallbackRoute
   '/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
+  '/history/$sessionId': typeof AuthenticatedHistorySessionIdRoute
   '/areas/': typeof AuthenticatedAreasIndexRoute
+  '/history/': typeof AuthenticatedHistoryIndexRoute
   '/areas/$areaId/': typeof AuthenticatedAreasAreaIdIndexRoute
   '/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
 }
@@ -89,7 +105,9 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/spotify/callback': typeof SpotifyCallbackRoute
+  '/history/$sessionId': typeof AuthenticatedHistorySessionIdRoute
   '/areas': typeof AuthenticatedAreasIndexRoute
+  '/history': typeof AuthenticatedHistoryIndexRoute
   '/areas/$areaId': typeof AuthenticatedAreasAreaIdIndexRoute
   '/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
 }
@@ -102,7 +120,9 @@ export interface FileRoutesById {
   '/_authenticated/areas': typeof AuthenticatedAreasRouteWithChildren
   '/spotify/callback': typeof SpotifyCallbackRoute
   '/_authenticated/areas/$areaId': typeof AuthenticatedAreasAreaIdRouteWithChildren
+  '/_authenticated/history/$sessionId': typeof AuthenticatedHistorySessionIdRoute
   '/_authenticated/areas/': typeof AuthenticatedAreasIndexRoute
+  '/_authenticated/history/': typeof AuthenticatedHistoryIndexRoute
   '/_authenticated/areas/$areaId/': typeof AuthenticatedAreasAreaIdIndexRoute
   '/_authenticated/areas/$areaId/exercise/$exerciseId': typeof AuthenticatedAreasAreaIdExerciseExerciseIdRoute
 }
@@ -115,7 +135,9 @@ export interface FileRouteTypes {
     | '/areas'
     | '/spotify/callback'
     | '/areas/$areaId'
+    | '/history/$sessionId'
     | '/areas/'
+    | '/history/'
     | '/areas/$areaId/'
     | '/areas/$areaId/exercise/$exerciseId'
   fileRoutesByTo: FileRoutesByTo
@@ -124,7 +146,9 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/spotify/callback'
+    | '/history/$sessionId'
     | '/areas'
+    | '/history'
     | '/areas/$areaId'
     | '/areas/$areaId/exercise/$exerciseId'
   id:
@@ -136,7 +160,9 @@ export interface FileRouteTypes {
     | '/_authenticated/areas'
     | '/spotify/callback'
     | '/_authenticated/areas/$areaId'
+    | '/_authenticated/history/$sessionId'
     | '/_authenticated/areas/'
+    | '/_authenticated/history/'
     | '/_authenticated/areas/$areaId/'
     | '/_authenticated/areas/$areaId/exercise/$exerciseId'
   fileRoutesById: FileRoutesById
@@ -193,12 +219,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAreasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/history/': {
+      id: '/_authenticated/history/'
+      path: '/history'
+      fullPath: '/history/'
+      preLoaderRoute: typeof AuthenticatedHistoryIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/areas/': {
       id: '/_authenticated/areas/'
       path: '/'
       fullPath: '/areas/'
       preLoaderRoute: typeof AuthenticatedAreasIndexRouteImport
       parentRoute: typeof AuthenticatedAreasRoute
+    }
+    '/_authenticated/history/$sessionId': {
+      id: '/_authenticated/history/$sessionId'
+      path: '/history/$sessionId'
+      fullPath: '/history/$sessionId'
+      preLoaderRoute: typeof AuthenticatedHistorySessionIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/areas/$areaId': {
       id: '/_authenticated/areas/$areaId'
@@ -256,10 +296,14 @@ const AuthenticatedAreasRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAreasRoute: typeof AuthenticatedAreasRouteWithChildren
+  AuthenticatedHistorySessionIdRoute: typeof AuthenticatedHistorySessionIdRoute
+  AuthenticatedHistoryIndexRoute: typeof AuthenticatedHistoryIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAreasRoute: AuthenticatedAreasRouteWithChildren,
+  AuthenticatedHistorySessionIdRoute: AuthenticatedHistorySessionIdRoute,
+  AuthenticatedHistoryIndexRoute: AuthenticatedHistoryIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
