@@ -32,11 +32,10 @@ const APPS: { id: MusicApp; label: string; icon: ComponentType<{ className?: str
   { id: "youtube", label: "YouTube Music", icon: CirclePlay },
 ];
 
-const ring =
-  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-foreground";
+const ring = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
 
 const tile = cn(
-  "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl bg-primary-foreground/10 px-1 text-xs font-semibold transition-colors hover:bg-primary-foreground/20 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-primary-foreground/10",
+  "flex min-h-16 flex-col items-center justify-center gap-1 rounded-2xl border border-glass-ink/15 bg-glass-ink/8 px-1 text-xs font-semibold transition-colors hover:bg-glass-ink/15 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-glass-ink/8",
   ring,
 );
 
@@ -84,13 +83,13 @@ export function MobileDock() {
       <div className="px-5 pt-5 pb-3">
         {/* Profile */}
         <FloatingMenuItem open={open} index={i++} className="flex items-center gap-3">
-          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary-foreground text-lg font-black text-primary">
+          <span className="grid size-12 shrink-0 place-items-center rounded-full bg-primary text-lg font-black text-primary-foreground">
             {initial}
           </span>
           <div className="min-w-0 flex-1">
             <div className="truncate text-lg font-black leading-tight">{profile?.name || "—"}</div>
             {profile?.email && (
-              <div dir="ltr" className="truncate text-end text-sm opacity-80">
+              <div dir="ltr" className="truncate text-end text-sm text-muted-foreground">
                 {profile.email}
               </div>
             )}
@@ -104,7 +103,7 @@ export function MobileDock() {
                 key={r.to}
                 to={r.to}
                 className={cn(
-                  "group flex min-h-12 items-center rounded-xl px-2 text-[1.375rem] leading-none transition-colors hover:bg-primary-foreground/10",
+                  "group flex min-h-12 items-center rounded-xl px-2 text-[1.375rem] leading-none transition-colors hover:bg-glass-ink/10",
                   ring,
                 )}
               >
@@ -116,7 +115,7 @@ export function MobileDock() {
                         "transition-opacity",
                         isActive
                           ? "font-black"
-                          : "font-bold opacity-75 group-hover:opacity-100 group-focus-visible:opacity-100",
+                          : "font-bold opacity-80 group-hover:opacity-100 group-focus-visible:opacity-100",
                       )}
                     />
                     {/* Points the way in RTL; bolds and steps toward the label when current/hovered. */}
@@ -126,7 +125,7 @@ export function MobileDock() {
                         "ms-3 size-6 shrink-0 transition-[translate,stroke-width,opacity] duration-200",
                         isActive
                           ? "translate-x-1.5 stroke-3"
-                          : "stroke-2 opacity-75 group-hover:translate-x-1.5 group-hover:stroke-3 group-hover:opacity-100 group-focus-visible:translate-x-1.5 group-focus-visible:stroke-3 group-focus-visible:opacity-100",
+                          : "stroke-2 opacity-80 group-hover:translate-x-1.5 group-hover:stroke-3 group-hover:opacity-100 group-focus-visible:translate-x-1.5 group-focus-visible:stroke-3 group-focus-visible:opacity-100",
                       )}
                     />
                   </>
@@ -147,10 +146,7 @@ export function MobileDock() {
                   type="button"
                   onClick={() => pickApp(id)}
                   aria-pressed={chosen}
-                  className={cn(
-                    tile,
-                    chosen && "bg-primary-foreground/20 ring-2 ring-primary-foreground/70",
-                  )}
+                  className={cn(tile, chosen && "bg-glass-ink/15 ring-2 ring-glass-ink/70")}
                 >
                   <Icon className="size-5" aria-hidden />
                   <span className="leading-tight">{label}</span>
@@ -181,7 +177,7 @@ export function MobileDock() {
             <button type="button" disabled className={tile}>
               <Settings className="size-5" aria-hidden />
               הגדרות
-              <span className="rounded-full bg-primary-foreground/15 px-1.5 text-[10px] font-normal">
+              <span className="rounded-full bg-glass-ink/15 px-1.5 text-[10px] font-normal">
                 בקרוב
               </span>
             </button>
@@ -209,11 +205,7 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <FloatingMenuItem
-      open={open}
-      index={index}
-      className="mt-4 border-t border-primary-foreground/20 pt-3"
-    >
+    <FloatingMenuItem open={open} index={index} className="mt-4 border-t border-glass-ink/20 pt-3">
       <h2 className="mb-2 text-xs font-semibold tracking-wide opacity-80">{title}</h2>
       {children}
     </FloatingMenuItem>
@@ -235,7 +227,7 @@ function DockPreview({
   const { connected, track, paused, setPlayerOpen, preferredApp, openMusicApp } = useMusic();
 
   const icon = cn(
-    "relative grid size-11 shrink-0 place-items-center rounded-full text-foreground transition-colors hover:bg-muted",
+    "relative grid size-11 shrink-0 place-items-center rounded-full text-glass-ink transition-colors hover:bg-glass-ink/10",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
   );
 
@@ -261,7 +253,7 @@ function DockPreview({
         <span
           aria-hidden
           className={cn(
-            "absolute bottom-1 end-1 size-2.5 rounded-full ring-2 ring-card",
+            "absolute bottom-1 end-1 size-2.5 rounded-full ring-2 ring-background",
             track && !paused ? "bg-[#1DB954]" : "bg-muted-foreground",
           )}
         />
@@ -288,7 +280,7 @@ function DockPreview({
   }
 
   return (
-    <div className="flex w-full items-center justify-around border-s border-border ps-1">
+    <div className="flex w-full items-center justify-around border-s border-glass-ink/20 ps-1">
       <button type="button" onClick={onOpen} aria-label="פרופיל" className={icon}>
         <span className="grid size-8 place-items-center rounded-full bg-primary text-sm font-black text-primary-foreground">
           {initial}

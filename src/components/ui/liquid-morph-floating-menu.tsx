@@ -5,8 +5,8 @@ import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
 
 /**
  * Liquid-morph floating menu (adapted from 21st.dev): a pill docked at the bottom
- * that morphs into a panel while a brand-red circle rises behind the content.
- * Sparta theme tokens throughout; the hamburger is the landing header's MenuToggleIcon.
+ * that morphs into a panel. Liquid-glass surface with brand-red ink (see `.liquid-glass`
+ * in styles.css); the hamburger is the landing header's MenuToggleIcon.
  */
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -101,7 +101,7 @@ export function FloatingMenu({
       )}
     >
       <motion.div
-        className="pointer-events-auto relative overflow-hidden shadow-2xl shadow-black/25"
+        className="pointer-events-auto relative overflow-hidden"
         initial={reduce ? { opacity: 0 } : { opacity: 0, y: 20 }}
         animate={{
           opacity: 1,
@@ -118,17 +118,7 @@ export function FloatingMenu({
         }}
       >
         {/* Shell */}
-        <div className="absolute inset-0 rounded-[inherit] border border-border bg-card/90 backdrop-blur-xl supports-[backdrop-filter]:bg-card/80" />
-
-        {/* Brand circle rising from the bottom */}
-        <motion.div
-          aria-hidden
-          className="absolute left-1/2 size-[200%] rounded-full bg-primary"
-          style={{ x: "-50%" }}
-          initial={false}
-          animate={{ bottom: open ? "-20%" : "-200%" }}
-          transition={reduce ? { duration: 0 } : { duration: 0.7, ease, delay: open ? 0.05 : 0 }}
-        />
+        <div className="liquid-glass absolute inset-0 rounded-[inherit]" />
 
         {/* Panel — laid out at the open width so its height can be measured up front */}
         <div
@@ -137,7 +127,7 @@ export function FloatingMenu({
           aria-label={label}
           inert={!open}
           className={cn(
-            "absolute top-0 left-1/2 -translate-x-1/2 text-primary-foreground transition-opacity",
+            "absolute top-0 left-1/2 -translate-x-1/2 text-glass-ink transition-opacity",
             open ? "opacity-100 duration-300" : "opacity-0 duration-100",
           )}
           style={{ width: openWidth }}
@@ -158,10 +148,7 @@ export function FloatingMenu({
             aria-controls={panelId}
             onClick={() => onOpenChange(!open)}
             className={cn(
-              "relative grid size-11 shrink-0 place-items-center rounded-full transition-colors duration-300 focus-visible:outline-none focus-visible:ring-2",
-              open
-                ? "text-primary-foreground hover:bg-primary-foreground/10 focus-visible:ring-primary-foreground"
-                : "text-foreground hover:bg-muted focus-visible:ring-ring",
+              "relative grid size-11 shrink-0 place-items-center rounded-full text-glass-ink transition-colors hover:bg-glass-ink/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             )}
           >
             <MenuToggleIcon open={open} className="size-6" duration={reduce ? 0 : 500} />
