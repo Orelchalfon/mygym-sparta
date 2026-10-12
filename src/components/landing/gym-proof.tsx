@@ -3,7 +3,8 @@ import { Reveal, StaggerGroup, StaggerItem } from "@/components/landing/motion";
 import { SectionHeading } from "@/components/landing/section-heading";
 import { GYM, SHOW_PLACEHOLDER_TAGS } from "@/components/landing/content";
 import { AREAS } from "@/lib/workout.constants";
-import heroImage from "@/assets/sparta-hero.jpg";
+import heroImage480 from "@/assets/sparta-hero-480.webp";
+import heroImage770 from "@/assets/sparta-hero-770.webp";
 
 /**
  * Real gym photo next to verifiable facts. Deliberately no member counts,
@@ -31,9 +32,12 @@ export function GymProof() {
         <Reveal className="relative order-last lg:order-first">
           <div className="relative aspect-[4/3] overflow-hidden rounded-[2rem] border border-border">
             <img
-              src={heroImage}
+              src={heroImage770}
+              srcSet={`${heroImage480} 480w, ${heroImage770} 770w`}
+              sizes="(min-width: 1024px) 560px, 90vw"
               alt="אזור הכוח במכון ספרטא"
               loading="lazy"
+              decoding="async"
               width={1920}
               height={1080}
               className="size-full object-cover"
