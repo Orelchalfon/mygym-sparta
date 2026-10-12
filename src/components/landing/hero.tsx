@@ -5,7 +5,8 @@ import { ArrowLeft, Check, Clock, MapPin } from "lucide-react";
 import { SPRING } from "@/components/landing/motion";
 import { GYM, SHOW_PLACEHOLDER_TAGS } from "@/components/landing/content";
 import { REST_SECONDS } from "@/lib/workout.constants";
-import heroImage from "@/assets/sparta-hero.jpg";
+import heroImage480 from "@/assets/sparta-hero-480.webp";
+import heroImage770 from "@/assets/sparta-hero-770.webp";
 
 const rise = (i: number) => ({ "--rise-i": i }) as React.CSSProperties;
 
@@ -103,11 +104,14 @@ export function Hero() {
         >
           <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-border bg-card">
             <motion.img
-              src={heroImage}
+              src={heroImage770}
+              srcSet={`${heroImage480} 480w, ${heroImage770} 770w`}
+              sizes="(min-width: 1024px) 560px, 90vw"
               alt="אולם האימונים במכון ספרטא"
-              width={1920}
+              width={770}
               height={1080}
               fetchPriority="high"
+              decoding="async"
               style={{ y: reduce ? undefined : imageY }}
               className="absolute inset-0 h-[112%] w-full scale-105 object-cover object-center"
             />
