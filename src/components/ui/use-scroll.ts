@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export function useScroll(threshold: number) {
   const [scrolled, setScrolled] = React.useState(false);
@@ -8,8 +8,8 @@ export function useScroll(threshold: number) {
   }, [threshold]);
 
   React.useEffect(() => {
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, [onScroll]);
 
   React.useEffect(() => {

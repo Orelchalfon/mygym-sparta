@@ -4,6 +4,15 @@ import { useServerFn } from "@tanstack/react-start";
 import { logSet } from "@/lib/workout.functions";
 import { activeSessionQO, exercisesQO } from "@/lib/workout.queries";
 import { REST_SECONDS } from "@/lib/workout.constants";
+import {
+  extendRest,
+  parseStoredRest,
+  restKey,
+  restProgress,
+  restRemainingMs,
+  startRest,
+  type Rest,
+} from "@/lib/rest-timer";
 import { getMachine } from "@/lib/machines";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -41,16 +50,9 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/exercise/$ex
   component: ExercisePage,
 });
 
-/** Rest state survives refresh/lock: we store when it ends, not a countdown. */
-type Rest = { endsAt: number; total: number };
-const restKey = (id: string) => `sparta:rest:${id}`;
-
 function readRest(id: string): Rest | null {
   try {
-    const raw = sessionStorage.getItem(restKey(id));
-    if (!raw) return null;
-    const r = JSON.parse(raw) as Rest;
-    return r.endsAt > Date.now() ? r : null;
+    return parseStoredRest(sessionStorage.getItem(restKey(id)), Date.now());
   } catch {
     return null;
   }
@@ -213,7 +215,7 @@ function ExercisePage() {
         exitTimer.current = setTimeout(exit, 1600);
       } else {
         setCompletedNow(res.set_number % res.target_sets);
-        const r = { endsAt: Date.now() + REST_SECONDS * 1000, total: REST_SECONDS };
+        const r = startRest(Date.now(), REST_SECONDS);
         writeRest(exerciseId, r);
         setNow(Date.now());
         setRest(r);
@@ -228,7 +230,7 @@ function ExercisePage() {
 
   function addTime() {
     if (!rest) return;
-    const r = { endsAt: rest.endsAt + 15_000, total: rest.total + 15 };
+    const r = extendRest(rest, 15);
     writeRest(exerciseId, r);
     setRest(r);
   }
@@ -277,9 +279,8 @@ function ExercisePage() {
   }
 
   if (rest) {
-    const remainingMs = Math.max(0, rest.endsAt - now);
-    const seconds = Math.ceil(remainingMs / 1000);
-    const frac = 1 - remainingMs / (rest.total * 1000);
+    const seconds = Math.ceil(restRemainingMs(rest, now) / 1000);
+    const frac = restProgress(rest, now);
     const C = 2 * Math.PI * 45;
     return (
       <div className={shell}>

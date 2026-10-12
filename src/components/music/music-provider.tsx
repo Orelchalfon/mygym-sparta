@@ -17,9 +17,50 @@ import {
 } from "@/lib/spotify.functions";
 import { beginSpotifyLogin } from "@/lib/spotify-pkce";
 
+/** The slice of the Spotify Web Playback SDK we use (https://sdk.scdn.co/spotify-player.js). */
+type SpotifyPlaybackState = {
+  paused: boolean;
+  position: number;
+  duration: number;
+  track_window?: {
+    current_track?: {
+      name: string;
+      duration_ms?: number;
+      artists?: { name: string }[];
+      album?: { images?: { url: string }[] };
+    };
+  };
+};
+
+type SpotifyPlayer = {
+  connect(): Promise<boolean>;
+  disconnect(): void;
+  addListener(event: "ready" | "not_ready", cb: (e: { device_id: string }) => void): boolean;
+  addListener(
+    event: "initialization_error" | "authentication_error" | "account_error",
+    cb: (e: { message: string }) => void,
+  ): boolean;
+  addListener(
+    event: "player_state_changed",
+    cb: (state: SpotifyPlaybackState | null) => void,
+  ): boolean;
+  getCurrentState(): Promise<SpotifyPlaybackState | null>;
+  togglePlay(): Promise<void>;
+  nextTrack(): Promise<void>;
+  previousTrack(): Promise<void>;
+  setVolume(volume: number): Promise<void>;
+  seek(positionMs: number): Promise<void>;
+};
+
 declare global {
   interface Window {
-    Spotify?: any;
+    Spotify?: {
+      Player: new (options: {
+        name: string;
+        getOAuthToken: (cb: (token: string) => void) => void;
+        volume?: number;
+      }) => SpotifyPlayer;
+    };
     onSpotifyWebPlaybackSDKReady?: () => void;
   }
 }
@@ -102,7 +143,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [playerOpen, setPlayerOpen] = useState(false);
   const [preferredApp, setPreferredApp] = useState<MusicApp | null>(null);
   const transferredRef = useRef(false);
-  const playerRef = useRef<any>(null);
+  const playerRef = useRef<SpotifyPlayer | null>(null);
   const pausedRef = useRef(true);
   pausedRef.current = paused;
 
@@ -165,7 +206,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         volume: 0.5,
       });
 
-      player.addListener("ready", async ({ device_id }: any) => {
+      player.addListener("ready", async ({ device_id }) => {
         if (disposed) return;
         setReady(true);
         setDeviceId(device_id);
@@ -181,25 +222,25 @@ export function MusicProvider({ children }: { children: ReactNode }) {
         }
       });
       player.addListener("not_ready", () => setReady(false));
-      player.addListener("initialization_error", ({ message }: any) =>
+      player.addListener("initialization_error", ({ message }) =>
         console.error("Spotify init error:", message),
       );
-      player.addListener("authentication_error", ({ message }: any) => {
+      player.addListener("authentication_error", ({ message }) => {
         console.error("Spotify auth error:", message);
         toast.error("החיבור לספוטיפיי פג — התחבר מחדש");
         setConnected(false);
       });
-      player.addListener("account_error", ({ message }: any) => {
+      player.addListener("account_error", ({ message }) => {
         console.error("Spotify account error:", message);
         toast.error("נדרש מנוי Spotify Premium");
       });
-      player.addListener("player_state_changed", (state: any) => {
+      player.addListener("player_state_changed", (state) => {
         if (!state) return;
         const t = state.track_window?.current_track;
         if (t) {
           setTrack({
             name: t.name,
-            artist: t.artists?.map((a: any) => a.name).join(", ") ?? "",
+            artist: t.artists?.map((a) => a.name).join(", ") ?? "",
             image: t.album?.images?.[0]?.url,
             duration: state.duration ?? t.duration_ms ?? 0,
           });

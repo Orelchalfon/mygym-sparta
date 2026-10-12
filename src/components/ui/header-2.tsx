@@ -1,10 +1,10 @@
-import React from 'react';
-import { motion, useReducedMotion, type Variants } from 'motion/react';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon';
-import { useScroll } from '@/components/ui/use-scroll';
-import { Dumbbell } from 'lucide-react';
+import React from "react";
+import { motion, useReducedMotion, type Variants } from "motion/react";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
+import { useScroll } from "@/components/ui/use-scroll";
+import { Dumbbell } from "lucide-react";
 
 type NavLink = { label: string; href: string };
 
@@ -35,9 +35,9 @@ export interface HeaderProps {
 }
 
 const defaultLinks: NavLink[] = [
-  { label: 'תכונות', href: '#features' },
-  { label: 'מחירים', href: '#pricing' },
-  { label: 'אודות', href: '#about' },
+  { label: "תכונות", href: "#features" },
+  { label: "מחירים", href: "#pricing" },
+  { label: "אודות", href: "#about" },
 ];
 
 export function Header({
@@ -57,21 +57,21 @@ export function Header({
   const overHero = transparentOnTop && !solid;
 
   React.useEffect(() => {
-    document.body.style.overflow = open ? 'hidden' : '';
+    document.body.style.overflow = open ? "hidden" : "";
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
     };
   }, [open]);
 
   return (
     <header
       className={cn(
-        'fixed top-0 inset-x-0 z-50 transition-all duration-300',
+        "fixed top-0 inset-x-0 z-50 transition-all duration-300",
         solid
-          ? 'bg-background/80 backdrop-blur-md border-b border-border'
+          ? "bg-background/80 backdrop-blur-md border-b border-border"
           : transparentOnTop
-            ? 'bg-transparent'
-            : 'bg-background/60 backdrop-blur-md border-b border-border/60',
+            ? "bg-transparent"
+            : "bg-background/60 backdrop-blur-md border-b border-border/60",
       )}
     >
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -83,18 +83,13 @@ export function Header({
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             whileHover={reduce ? undefined : { scale: 1.03 }}
             className={cn(
-              'flex items-center gap-2 font-bold text-lg transition-colors',
-              overHero ? 'text-white' : 'text-foreground',
+              "flex items-center gap-2 font-bold text-lg transition-colors",
+              overHero ? "text-white" : "text-foreground",
             )}
           >
             {brand ?? (
               <>
-                <Dumbbell
-                  className={cn(
-                    'h-6 w-6',
-                    overHero ? 'text-red-500' : 'text-primary',
-                  )}
-                />
+                <Dumbbell className={cn("h-6 w-6", overHero ? "text-red-500" : "text-primary")} />
                 <span>Sparta Gym</span>
               </>
             )}
@@ -113,11 +108,11 @@ export function Header({
                 variants={navItem}
                 whileHover={reduce ? undefined : { y: -2 }}
                 className={cn(
-                  'relative px-3 py-2 text-sm font-medium transition-colors',
-                  'after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-center after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform hover:after:scale-x-100',
+                  "relative px-3 py-2 text-sm font-medium transition-colors",
+                  "after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:origin-center after:scale-x-0 after:rounded-full after:bg-primary after:transition-transform hover:after:scale-x-100",
                   overHero
-                    ? 'text-white/85 hover:text-white'
-                    : 'text-foreground/80 hover:text-foreground',
+                    ? "text-white/85 hover:text-white"
+                    : "text-foreground/80 hover:text-foreground",
                 )}
               >
                 {link.label}
@@ -132,9 +127,7 @@ export function Header({
                 <Button
                   variant="ghost"
                   onClick={onSignIn}
-                  className={
-                    overHero ? 'text-white hover:bg-white/10 hover:text-white' : undefined
-                  }
+                  className={overHero ? "text-white hover:bg-white/10 hover:text-white" : undefined}
                 >
                   התחברות
                 </Button>
@@ -149,8 +142,8 @@ export function Header({
             aria-expanded={open}
             onClick={() => setOpen(!open)}
             className={cn(
-              'md:hidden inline-flex items-center justify-center h-10 w-10 rounded-md transition-colors',
-              overHero ? 'text-white' : 'text-foreground',
+              "md:hidden inline-flex items-center justify-center h-10 w-10 rounded-md transition-colors",
+              overHero ? "text-white" : "text-foreground",
             )}
           >
             <MenuToggleIcon open={open} className="h-6 w-6" />
@@ -159,17 +152,17 @@ export function Header({
 
         <div
           className={cn(
-            'md:hidden overflow-hidden transition-all duration-500 ease-in-out',
+            "md:hidden overflow-hidden transition-all duration-500 ease-in-out",
             open
-              ? 'max-h-[28rem] opacity-100 translate-y-0 pb-6'
-              : 'max-h-0 opacity-0 -translate-y-1 pointer-events-none',
+              ? "max-h-[28rem] opacity-100 translate-y-0 pb-6"
+              : "max-h-0 opacity-0 -translate-y-1 pointer-events-none",
           )}
         >
           <motion.nav
             className="flex flex-col gap-1 pt-2"
             variants={navContainer}
             initial="hidden"
-            animate={open ? 'show' : 'hidden'}
+            animate={open ? "show" : "hidden"}
           >
             {links.map((link) => (
               <motion.a
