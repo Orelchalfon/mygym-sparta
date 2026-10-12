@@ -91,7 +91,7 @@ export function SiteFooter() {
       </div>
 
       <div className="border-t border-border">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-6 text-sm text-foreground/45 sm:px-6">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-4 px-4 py-6 text-sm text-foreground/65 sm:px-6">
           <span>
             <bdi>© {new Date().getFullYear()}</bdi> מכון כושר {GYM.name}
           </span>
