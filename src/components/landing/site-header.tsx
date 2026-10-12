@@ -34,8 +34,6 @@ export function SiteHeader() {
         )}
       >
         <div className="flex h-14 items-center justify-between gap-4 ps-4 pe-2 sm:h-16 sm:ps-6 sm:pe-3">
-         
-
           <div className="hidden items-center gap-2 lg:flex">
             <Link
               to="/auth"
@@ -46,17 +44,17 @@ export function SiteHeader() {
             <Link
               to="/auth"
               className="rounded-full px-4 py-2 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
-              >
+            >
               כניסה
             </Link>
-              {GYM.phone && (
-                <a
-                  href={telHref(GYM.phone)}
-                  className="flex items-center gap-2 px-3 text-sm font-medium text-primary/80   border-2 border-primary py-2 rounded-xl transition-colors  hover:bg-primary hover:text-foreground [&:hover>*]:scale-125 "
-                >
-                  <Phone className="size-4 hover:font-bold transition-transform" />
-                </a>
-              )}
+            {GYM.phone && (
+              <a
+                href={telHref(GYM.phone)}
+                className="flex items-center gap-2 px-3 text-sm font-medium text-primary/80   border-2 border-primary py-2 rounded-xl transition-colors  hover:bg-primary hover:text-foreground [&:hover>*]:scale-125 "
+              >
+                <Phone className="size-4 hover:font-bold transition-transform" />
+              </a>
+            )}
           </div>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="ניווט ראשי">
             {NAV_LINKS.map((link) => (
@@ -70,12 +68,6 @@ export function SiteHeader() {
             ))}
           </nav>
 
- <a href="#top" className="flex items-center gap-2 text-lg font-black">
-            <span>{GYM.name}</span>
-            <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground">
-              <Dumbbell className="size-4" />
-            </span>
-          </a>
           <button
             type="button"
             aria-label={open ? "סגירת תפריט" : "פתיחת תפריט"}
@@ -86,6 +78,12 @@ export function SiteHeader() {
           >
             <MenuToggleIcon open={open} className="size-6" />
           </button>
+          <a href="#top" className="flex items-center gap-2 text-lg font-black">
+            <span>{GYM.name}</span>
+            <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground">
+              <Dumbbell className="size-4" />
+            </span>
+          </a>
         </div>
 
         <div
