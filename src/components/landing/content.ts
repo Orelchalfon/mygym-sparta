@@ -12,7 +12,7 @@ export const GYM = {
     { days: "ו׳", time: "06:00–14:00" },
   ],
   /** E.g. "050-000-0000". Missing — needed before public launch. */
-  phone: null as string | null,
+  phone: "052-883-0818" as string | null,
   email: null as string | null,
   /** Routes/URLs for legal pages. Missing — needed before public launch. */
   privacyUrl: null as string | null,

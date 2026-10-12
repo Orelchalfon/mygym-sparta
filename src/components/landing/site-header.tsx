@@ -1,10 +1,10 @@
-import * as React from "react";
-import { Link } from "@tanstack/react-router";
-import { Dumbbell, Phone } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { GYM, NAV_LINKS, telHref } from "@/components/landing/content";
 import { MenuToggleIcon } from "@/components/ui/menu-toggle-icon";
 import { useScroll } from "@/components/ui/use-scroll";
-import { GYM, NAV_LINKS, telHref } from "@/components/landing/content";
+import { cn } from "@/lib/utils";
+import { Link } from "@tanstack/react-router";
+import { Dumbbell, Phone } from "lucide-react";
+import * as React from "react";
 
 /**
  * Landing header: transparent over the hero, then condenses into a floating
@@ -34,13 +34,30 @@ export function SiteHeader() {
         )}
       >
         <div className="flex h-14 items-center justify-between gap-4 ps-4 pe-2 sm:h-16 sm:ps-6 sm:pe-3">
-          <a href="#top" className="flex items-center gap-2 text-lg font-black">
-            <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground">
-              <Dumbbell className="size-4" />
-            </span>
-            <span>{GYM.name}</span>
-          </a>
+         
 
+          <div className="hidden items-center gap-2 lg:flex">
+            <Link
+              to="/auth"
+              className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition-transform hover:-translate-y-0.5"
+            >
+              התחילו להתאמן
+            </Link>
+            <Link
+              to="/auth"
+              className="rounded-full px-4 py-2 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
+              >
+              כניסה
+            </Link>
+              {GYM.phone && (
+                <a
+                  href={telHref(GYM.phone)}
+                  className="flex items-center gap-2 px-3 text-sm font-medium text-primary/80   border-2 border-primary py-2 rounded-xl transition-colors  hover:bg-primary hover:text-foreground [&:hover>*]:scale-125 "
+                >
+                  <Phone className="size-4 hover:font-bold transition-transform" />
+                </a>
+              )}
+          </div>
           <nav className="hidden items-center gap-1 lg:flex" aria-label="ניווט ראשי">
             {NAV_LINKS.map((link) => (
               <a
@@ -53,30 +70,12 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="hidden items-center gap-2 lg:flex">
-            {GYM.phone && (
-              <a
-                href={telHref(GYM.phone)}
-                className="flex items-center gap-2 px-3 text-sm font-medium text-foreground/80 hover:text-foreground"
-              >
-                <Phone className="size-4 text-primary" />
-                <bdi>{GYM.phone}</bdi>
-              </a>
-            )}
-            <Link
-              to="/auth"
-              className="rounded-full px-4 py-2 text-sm font-semibold text-foreground/80 transition-colors hover:text-foreground"
-            >
-              כניסה
-            </Link>
-            <Link
-              to="/auth"
-              className="rounded-full bg-white px-5 py-2.5 text-sm font-bold text-black transition-transform hover:-translate-y-0.5"
-            >
-              התחילו להתאמן
-            </Link>
-          </div>
-
+ <a href="#top" className="flex items-center gap-2 text-lg font-black">
+            <span>{GYM.name}</span>
+            <span className="grid size-8 place-items-center rounded-full bg-primary text-primary-foreground">
+              <Dumbbell className="size-4" />
+            </span>
+          </a>
           <button
             type="button"
             aria-label={open ? "סגירת תפריט" : "פתיחת תפריט"}
@@ -93,7 +92,7 @@ export function SiteHeader() {
           id="landing-mobile-menu"
           className={cn(
             "overflow-hidden transition-all duration-500 ease-in-out lg:hidden",
-            open ? "max-h-[32rem] opacity-100" : "pointer-events-none max-h-0 opacity-0",
+            open ? "max-h-128 opacity-100" : "pointer-events-none max-h-0 opacity-0",
           )}
         >
           <nav className="flex flex-col gap-1 px-3 pb-2" aria-label="ניווט נייד">
