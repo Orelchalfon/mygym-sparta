@@ -1,0 +1,617 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-23T08:21:49.528Z",
+  "title": "Design System: Sparta Gym",
+  "extensions": {
+    "colorMeta": {
+      "sparta-red": {
+        "role": "primary",
+        "displayName": "Sparta Red",
+        "canonical": "#c8262d",
+        "oklch": "oklch(54.1% 0.196 25.1)",
+        "tonalRamp": [
+          "oklch(15.0% 0.060 25.1)",
+          "oklch(26.4% 0.125 25.1)",
+          "oklch(37.9% 0.176 25.1)",
+          "oklch(49.3% 0.196 25.1)",
+          "oklch(60.7% 0.180 25.1)",
+          "oklch(72.1% 0.132 25.1)",
+          "oklch(83.6% 0.068 25.1)",
+          "oklch(95.0% 0.012 25.1)"
+        ]
+      },
+      "sparta-red-night": {
+        "role": "primary",
+        "displayName": "Sparta Red, Night",
+        "canonical": "#d93a40",
+        "oklch": "oklch(59.0% 0.195 23.7)",
+        "tonalRamp": [
+          "oklch(15.0% 0.060 23.7)",
+          "oklch(26.4% 0.124 23.7)",
+          "oklch(37.9% 0.175 23.7)",
+          "oklch(49.3% 0.195 23.7)",
+          "oklch(60.7% 0.179 23.7)",
+          "oklch(72.1% 0.131 23.7)",
+          "oklch(83.6% 0.068 23.7)",
+          "oklch(95.0% 0.012 23.7)"
+        ]
+      },
+      "ember-red": {
+        "role": "primary",
+        "displayName": "Ember Red",
+        "canonical": "#e4494f",
+        "oklch": "oklch(62.5% 0.191 22.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.058 22.5)",
+          "oklch(26.4% 0.121 22.5)",
+          "oklch(37.9% 0.171 22.5)",
+          "oklch(49.3% 0.191 22.5)",
+          "oklch(60.7% 0.175 22.5)",
+          "oklch(72.1% 0.129 22.5)",
+          "oklch(83.6% 0.066 22.5)",
+          "oklch(95.0% 0.012 22.5)"
+        ]
+      },
+      "ember-red-ink": {
+        "role": "primary",
+        "displayName": "Ember Red Ink",
+        "canonical": "#f0585e",
+        "oklch": "oklch(66.4% 0.187 21.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.057 21.5)",
+          "oklch(26.4% 0.119 21.5)",
+          "oklch(37.9% 0.167 21.5)",
+          "oklch(49.3% 0.187 21.5)",
+          "oklch(60.7% 0.171 21.5)",
+          "oklch(72.1% 0.126 21.5)",
+          "oklch(83.6% 0.065 21.5)",
+          "oklch(95.0% 0.012 21.5)"
+        ]
+      },
+      "oxblood": {
+        "role": "primary",
+        "displayName": "Oxblood",
+        "canonical": "#8f1d22",
+        "oklch": "oklch(42.7% 0.149 24.3)",
+        "tonalRamp": [
+          "oklch(15.0% 0.046 24.3)",
+          "oklch(26.4% 0.095 24.3)",
+          "oklch(37.9% 0.133 24.3)",
+          "oklch(49.3% 0.149 24.3)",
+          "oklch(60.7% 0.137 24.3)",
+          "oklch(72.1% 0.100 24.3)",
+          "oklch(83.6% 0.052 24.3)",
+          "oklch(95.0% 0.009 24.3)"
+        ]
+      },
+      "red-wash": {
+        "role": "primary",
+        "displayName": "Red Wash",
+        "canonical": "#f7e8e8",
+        "oklch": "oklch(94.3% 0.016 17.4)",
+        "tonalRamp": [
+          "oklch(15.0% 0.005 17.4)",
+          "oklch(26.4% 0.010 17.4)",
+          "oklch(37.9% 0.015 17.4)",
+          "oklch(49.3% 0.016 17.4)",
+          "oklch(60.7% 0.015 17.4)",
+          "oklch(72.1% 0.011 17.4)",
+          "oklch(83.6% 0.006 17.4)",
+          "oklch(95.0% 0.001 17.4)"
+        ]
+      },
+      "chalk": {
+        "role": "neutral",
+        "displayName": "Chalk",
+        "canonical": "#faf7f5",
+        "oklch": "oklch(97.8% 0.004 56.4)",
+        "tonalRamp": [
+          "oklch(15.0% 0.001 56.4)",
+          "oklch(26.4% 0.003 56.4)",
+          "oklch(37.9% 0.004 56.4)",
+          "oklch(49.3% 0.004 56.4)",
+          "oklch(60.7% 0.004 56.4)",
+          "oklch(72.1% 0.003 56.4)",
+          "oklch(83.6% 0.001 56.4)",
+          "oklch(95.0% 0.000 56.4)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#ffffff",
+        "oklch": "oklch(100.0% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "stone-wash": {
+        "role": "neutral",
+        "displayName": "Stone Wash",
+        "canonical": "#f1ecea",
+        "oklch": "oklch(94.6% 0.006 43.3)",
+        "tonalRamp": [
+          "oklch(15.0% 0.002 43.3)",
+          "oklch(26.4% 0.004 43.3)",
+          "oklch(37.9% 0.005 43.3)",
+          "oklch(49.3% 0.006 43.3)",
+          "oklch(60.7% 0.006 43.3)",
+          "oklch(72.1% 0.004 43.3)",
+          "oklch(83.6% 0.002 43.3)",
+          "oklch(95.0% 0.000 43.3)"
+        ]
+      },
+      "stone-line": {
+        "role": "neutral",
+        "displayName": "Stone Line",
+        "canonical": "#e6dfdb",
+        "oklch": "oklch(90.8% 0.009 52.1)",
+        "tonalRamp": [
+          "oklch(15.0% 0.003 52.1)",
+          "oklch(26.4% 0.006 52.1)",
+          "oklch(37.9% 0.008 52.1)",
+          "oklch(49.3% 0.009 52.1)",
+          "oklch(60.7% 0.009 52.1)",
+          "oklch(72.1% 0.006 52.1)",
+          "oklch(83.6% 0.003 52.1)",
+          "oklch(95.0% 0.001 52.1)"
+        ]
+      },
+      "stone-field": {
+        "role": "neutral",
+        "displayName": "Stone Field",
+        "canonical": "#ddd4cf",
+        "oklch": "oklch(87.6% 0.012 51.3)",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 51.3)",
+          "oklch(26.4% 0.008 51.3)",
+          "oklch(37.9% 0.011 51.3)",
+          "oklch(49.3% 0.012 51.3)",
+          "oklch(60.7% 0.011 51.3)",
+          "oklch(72.1% 0.008 51.3)",
+          "oklch(83.6% 0.004 51.3)",
+          "oklch(95.0% 0.001 51.3)"
+        ]
+      },
+      "stone-text": {
+        "role": "neutral",
+        "displayName": "Stone Text",
+        "canonical": "#5c5550",
+        "oklch": "oklch(45.5% 0.012 58.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.004 58.0)",
+          "oklch(26.4% 0.008 58.0)",
+          "oklch(37.9% 0.011 58.0)",
+          "oklch(49.3% 0.012 58.0)",
+          "oklch(60.7% 0.011 58.0)",
+          "oklch(72.1% 0.008 58.0)",
+          "oklch(83.6% 0.004 58.0)",
+          "oklch(95.0% 0.001 58.0)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#171717",
+        "oklch": "oklch(20.5% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "iron-black": {
+        "role": "neutral",
+        "displayName": "Iron Black",
+        "canonical": "#0a0a0a",
+        "oklch": "oklch(14.5% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "iron-plate": {
+        "role": "neutral",
+        "displayName": "Iron Plate",
+        "canonical": "#141414",
+        "oklch": "oklch(19.1% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "iron-plate-landing": {
+        "role": "neutral",
+        "displayName": "Iron Plate, Landing",
+        "canonical": "#111111",
+        "oklch": "oklch(17.8% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "iron-raised": {
+        "role": "neutral",
+        "displayName": "Iron Raised",
+        "canonical": "#1c1c1c",
+        "oklch": "oklch(22.6% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "iron-line": {
+        "role": "neutral",
+        "displayName": "Iron Line",
+        "canonical": "#262626",
+        "oklch": "oklch(26.9% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "smoke": {
+        "role": "neutral",
+        "displayName": "Smoke",
+        "canonical": "#a1a1a1",
+        "oklch": "oklch(70.9% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "bone": {
+        "role": "neutral",
+        "displayName": "Bone",
+        "canonical": "#f5f5f5",
+        "oklch": "oklch(97.0% 0.000 0.0)",
+        "tonalRamp": [
+          "oklch(15.0% 0.000 0.0)",
+          "oklch(26.4% 0.000 0.0)",
+          "oklch(37.9% 0.000 0.0)",
+          "oklch(49.3% 0.000 0.0)",
+          "oklch(60.7% 0.000 0.0)",
+          "oklch(72.1% 0.000 0.0)",
+          "oklch(83.6% 0.000 0.0)",
+          "oklch(95.0% 0.000 0.0)"
+        ]
+      },
+      "danger": {
+        "role": "error",
+        "displayName": "Danger",
+        "canonical": "#b91c1c",
+        "oklch": "oklch(50.5% 0.190 27.5)",
+        "tonalRamp": [
+          "oklch(15.0% 0.058 27.5)",
+          "oklch(26.4% 0.121 27.5)",
+          "oklch(37.9% 0.170 27.5)",
+          "oklch(49.3% 0.190 27.5)",
+          "oklch(60.7% 0.175 27.5)",
+          "oklch(72.1% 0.128 27.5)",
+          "oklch(83.6% 0.066 27.5)",
+          "oklch(95.0% 0.012 27.5)"
+        ]
+      },
+      "danger-night": {
+        "role": "error",
+        "displayName": "Danger, Night",
+        "canonical": "#dc2626",
+        "oklch": "oklch(57.7% 0.215 27.3)",
+        "tonalRamp": [
+          "oklch(15.0% 0.066 27.3)",
+          "oklch(26.4% 0.136 27.3)",
+          "oklch(37.9% 0.192 27.3)",
+          "oklch(49.3% 0.215 27.3)",
+          "oklch(60.7% 0.197 27.3)",
+          "oklch(72.1% 0.145 27.3)",
+          "oklch(83.6% 0.075 27.3)",
+          "oklch(95.0% 0.013 27.3)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Landing hero headline only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Landing section headings."
+      },
+      "numeral": {
+        "displayName": "Numeral",
+        "purpose": "Rest-timer countdown; 6rem from sm."
+      },
+      "stat": {
+        "displayName": "Stat",
+        "purpose": "Weight / reps / sets readouts."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "App screen titles and exercise names; 1.875rem from sm."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Landing intro paragraphs (1.125rem on mobile)."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Default text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Muted captions above stats and in cards."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-rest",
+        "value": "0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.08)",
+        "purpose": "Default cards and tiles (alpha 0.5 in dark)."
+      },
+      {
+        "name": "card-hover",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.08)",
+        "purpose": "Tile hover lift."
+      },
+      {
+        "name": "red-glow",
+        "value": "0 20px 25px -5px rgb(200 38 45 / 0.3), 0 8px 10px -6px rgb(200 38 45 / 0.3)",
+        "purpose": "The one step-completing action per screen."
+      },
+      {
+        "name": "red-glow-sm",
+        "value": "0 4px 6px -1px rgb(200 38 45 / 0.3), 0 2px 4px -2px rgb(200 38 45 / 0.3)",
+        "purpose": "Current item in a sequence (active set dot)."
+      },
+      {
+        "name": "liquid-glass",
+        "value": "inset 0 1px 0 0 var(--glass-highlight), inset 0 -1px 0 0 var(--glass-shade), 0 12px 32px -8px rgb(0 0 0 / 0.3)",
+        "purpose": "Mobile dock, with backdrop-filter: blur(24px) saturate(180%)."
+      },
+      {
+        "name": "floating",
+        "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)",
+        "purpose": "Landing hero overlay cards and the scrolled header pill."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out-expo",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Landing rise-in entrance."
+      },
+      {
+        "name": "rise",
+        "value": "landing-rise 0.6s, translateY 24px → 0, stagger 80ms + 100ms base",
+        "purpose": "Hero and section entrances; runs in CSS before hydration."
+      },
+      {
+        "name": "marquee",
+        "value": "38s linear infinite",
+        "purpose": "Benefits ticker; pausable, off under reduced motion."
+      },
+      {
+        "name": "state",
+        "value": "150–300ms",
+        "purpose": "Hover, color and list-item entrances."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.98)",
+        "purpose": "Active state on tiles and the set CTA."
+      },
+      {
+        "name": "header-morph",
+        "value": "500ms",
+        "purpose": "Landing header contracting into a pill on scroll."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Default action; 36px.",
+      "html": "<button class=\"ds-btn\">התחילו</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border:0;border-radius:8px;background:var(--primary);color:var(--primary-foreground);font:500 14px/1 var(--font-sans);box-shadow:var(--shadow);cursor:pointer;transition:background-color .15s}.ds-btn:hover{background:color-mix(in srgb,var(--primary) 90%,transparent)}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring)}"
+    },
+    {
+      "name": "Touch Button",
+      "kind": "button",
+      "refersTo": "button-touch",
+      "description": "Anything tapped mid-workout; 44px minimum.",
+      "html": "<button class=\"ds-btn-touch\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" style=\"transform:scaleX(-1)\"><polygon points=\"5 4 15 12 5 20 5 4\"/><line x1=\"19\" x2=\"19\" y1=\"5\" y2=\"19\"/></svg>דלג על המנוחה</button>",
+      "css": ".ds-btn-touch{display:inline-flex;align-items:center;gap:8px;height:44px;padding:0 24px;border:0;border-radius:14px;background:var(--primary);color:var(--primary-foreground);font:700 16px/1 var(--font-sans);cursor:pointer;transition:background-color .15s}.ds-btn-touch:hover{background:color-mix(in srgb,var(--primary) 90%,transparent)}.ds-btn-touch:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring)}"
+    },
+    {
+      "name": "Set Complete Button",
+      "kind": "button",
+      "refersTo": "button-set-complete",
+      "description": "Signature: the one step-completing action per screen, with the Red glow.",
+      "html": "<button class=\"ds-btn-set\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>סיימתי סט</button>",
+      "css": ".ds-btn-set{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;height:64px;border:0;border-radius:18px;background:var(--primary);color:var(--primary-foreground);font:900 18px/1 var(--font-sans);box-shadow:0 20px 25px -5px color-mix(in srgb,var(--primary) 30%,transparent),0 8px 10px -6px color-mix(in srgb,var(--primary) 30%,transparent);cursor:pointer;transition:transform .1s,background-color .15s}.ds-btn-set:hover{background:color-mix(in srgb,var(--primary) 90%,transparent)}.ds-btn-set:active{transform:scale(.98)}.ds-btn-set:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring)}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action on app screens.",
+      "html": "<button class=\"ds-btn-outline\">ביטול</button>",
+      "css": ".ds-btn-outline{height:36px;padding:0 16px;border:1px solid var(--input);border-radius:8px;background:var(--background);color:var(--foreground);font:500 14px/1 var(--font-sans);box-shadow:var(--shadow-sm);cursor:pointer;transition:background-color .15s}.ds-btn-outline:hover{background:var(--accent);color:var(--accent-foreground)}.ds-btn-outline:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring)}"
+    },
+    {
+      "name": "Landing CTA",
+      "kind": "button",
+      "refersTo": "button-landing-cta",
+      "description": "Landing-only white pill with a black arrow badge at the end.",
+      "html": "<a class=\"ds-cta\" href=\"#\">התחילו בחינם<span class=\"ds-cta-badge\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m12 19-7-7 7-7\"/><path d=\"M19 12H5\"/></svg></span></a>",
+      "css": ".ds-cta{display:inline-flex;align-items:center;gap:12px;height:56px;padding-inline:28px 8px;border-radius:9999px;background:#fff;color:#000;font:700 16px/1 var(--font-sans);text-decoration:none;transition:transform .2s}.ds-cta:hover{transform:translateY(-2px)}.ds-cta:focus-visible{outline:2px solid #e4494f;outline-offset:3px}.ds-cta-badge{display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;background:#000;color:#fff}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "36px field; 16px text on mobile.",
+      "html": "<input class=\"ds-input\" placeholder=\"משקל (ק״ג)\" inputmode=\"decimal\">",
+      "css": ".ds-input{height:36px;width:100%;padding:4px 12px;border:1px solid var(--input);border-radius:8px;background:transparent;color:var(--foreground);font:400 16px/1.5 var(--font-sans);box-shadow:var(--shadow-sm);transition:box-shadow .15s}.ds-input::placeholder{color:var(--muted-foreground)}.ds-input:focus-visible{outline:none;box-shadow:0 0 0 1px var(--ring)}"
+    },
+    {
+      "name": "Area Tile",
+      "kind": "card",
+      "refersTo": "area-tile",
+      "description": "Signature 4:5 photo card with a scrim, title and frosted chevron.",
+      "html": "<a class=\"ds-tile\" href=\"#\"><span class=\"ds-tile-scrim\"></span><span class=\"ds-tile-text\"><b>חזה</b><small>4 תרגילים</small></span><span class=\"ds-tile-chev\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m15 18-6-6 6-6\"/></svg></span></a>",
+      "css": ".ds-tile{position:relative;display:block;width:180px;aspect-ratio:4/5;overflow:hidden;border:1px solid var(--border);border-radius:18px;background:linear-gradient(135deg,#3a3a3a,#141414);box-shadow:var(--shadow-sm);direction:rtl;transition:transform .2s,box-shadow .2s}.ds-tile:hover{box-shadow:var(--shadow-lg)}.ds-tile:active{transform:scale(.98)}.ds-tile:focus-visible{outline:none;box-shadow:0 0 0 2px var(--background),0 0 0 4px var(--ring)}.ds-tile-scrim{position:absolute;inset:0;background:linear-gradient(to top,rgb(0 0 0/.9),rgb(0 0 0/.35),transparent)}.ds-tile-text{position:absolute;bottom:16px;inset-inline-start:16px;display:flex;flex-direction:column;color:#fff;font-family:var(--font-sans)}.ds-tile-text b{font-size:18px;font-weight:900}.ds-tile-text small{font-size:14px;opacity:.8;font-variant-numeric:tabular-nums}.ds-tile-chev{position:absolute;bottom:16px;inset-inline-end:16px;display:grid;place-items:center;width:32px;height:32px;border-radius:9999px;background:rgb(255 255 255/.15);color:#fff;backdrop-filter:blur(8px);transition:background-color .2s}.ds-tile:hover .ds-tile-chev{background:var(--primary)}"
+    },
+    {
+      "name": "Set Progress Dots",
+      "kind": "chip",
+      "refersTo": "set-dots",
+      "description": "Done (tinted + check), current (solid red, small glow), upcoming (muted).",
+      "html": "<ol class=\"ds-dots\"><li class=\"is-done\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\"><path d=\"M20 6 9 17l-5-5\"/></svg></li><li class=\"is-current\">2</li><li>3</li></ol>",
+      "css": ".ds-dots{display:flex;gap:8px;margin:0;padding:0;list-style:none;direction:rtl}.ds-dots li{display:grid;place-items:center;min-width:32px;height:32px;padding:0 8px;border-radius:9999px;background:var(--muted);color:var(--muted-foreground);font:700 14px/1 var(--font-sans);font-variant-numeric:tabular-nums;transition:background-color .2s}.ds-dots .is-done{background:color-mix(in srgb,var(--primary) 15%,transparent);color:var(--primary)}.ds-dots .is-current{background:var(--primary);color:var(--primary-foreground);box-shadow:0 4px 6px -1px color-mix(in srgb,var(--primary) 30%,transparent)}"
+    },
+    {
+      "name": "Liquid Glass Dock",
+      "kind": "nav",
+      "refersTo": "mobile-dock",
+      "description": "Signature mobile-only bottom dock in liquid glass.",
+      "html": "<nav class=\"ds-dock\" aria-label=\"תפריט ניווט\"><span class=\"ds-dock-avatar\">א</span><span class=\"ds-dock-label\">אזורי אימון</span><button class=\"ds-dock-btn\" aria-label=\"פתח תפריט\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 6h16M4 12h16M4 18h16\"/></svg></button></nav>",
+      "css": ".ds-dock{display:flex;align-items:center;gap:12px;width:320px;padding:8px;border-radius:9999px;direction:rtl;background:var(--glass-bg);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 0 var(--glass-highlight),inset 0 -1px 0 0 var(--glass-shade),0 12px 32px -8px rgb(0 0 0/.3);font-family:var(--font-sans)}.ds-dock-avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:9999px;background:var(--primary);color:var(--primary-foreground);font-weight:900}.ds-dock-label{flex:1;font-weight:700;color:var(--glass-ink)}.ds-dock-btn{display:grid;place-items:center;width:44px;height:44px;border:0;border-radius:9999px;background:color-mix(in srgb,var(--glass-ink) 8%,transparent);color:var(--glass-ink);cursor:pointer}.ds-dock-btn:hover{background:color-mix(in srgb,var(--glass-ink) 15%,transparent)}.ds-dock-btn:focus-visible{outline:none;box-shadow:0 0 0 2px var(--ring)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Gym-Floor Companion",
+    "overview": "**Creative North Star: \"The Gym-Floor Companion\"**\n\nSparta is designed for a phone held in a sweaty hand between sets. Each screen gives one clear answer and one obvious next tap: a huge number, a heavy Hebrew title, and a single red action. Everything else steps back into warm neutral surfaces. The app gets its energy from type weight and scale (Heebo at 900) rather than from ornament, and its warmth from slightly warm, stone-tinted neutrals rather than cold greys.\n\nThe system has two registers that share one brand. The **app** (areas, exercise, rest timer, history) has light and dark themes designed together, with generous rounding and touch-sized controls. The **landing** is always dark, scoped under `.landing`. It uses tighter corners and white pill CTAs over near-black, with real gym photography, display-sized headlines, a slow benefits ticker and staggered rise-in motion. The landing persuades and the app gets out of the way.\n\nDensity is low and deliberate. Interactive targets are at least 44px, the main in-workout action is 64px tall and spans the full width, and content columns stay narrow (448px in the workout flow) so a thumb reaches everything.",
+    "keyCharacteristics": [
+      "Hebrew-native, RTL, logical properties throughout; directional icons flip in RTL.",
+      "Heebo Variable only, leaning on weight 900 for every heading and number.",
+      "One red accent, used for the action, the progress and the current state.",
+      "Warm stone neutrals in light mode, iron blacks in dark mode and on the landing.",
+      "Big tabular numerals for weight, reps, sets and timers.",
+      "Liquid-glass mobile dock and a red glow under the primary action as signature depth."
+    ],
+    "rules": [
+      {
+        "name": "The One Red Rule",
+        "body": "Red means one of three things: the next action, progress, or \"you are here\". It is never decoration, and no second accent hue competes with it (amber exists only as a chart series).",
+        "section": "colors"
+      },
+      {
+        "name": "The Warm Neutral Rule",
+        "body": "Light surfaces are stone-tinted (Chalk, Stone Wash), not cool grey. Pure #ffffff is reserved for raised cards (Paper) and the landing's white CTA.",
+        "section": "colors"
+      },
+      {
+        "name": "The Heavy-or-Quiet Rule",
+        "body": "Text is either 900 (it's a heading or a number) or 400–700 (it's reading). Mid-heavy 800 headings dilute the contrast.",
+        "section": "typography"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Every changing number (weight, reps, set count, timer, prices, hours) uses tabular figures and is isolated with `<bdi>` where it sits in RTL text.",
+        "section": "typography"
+      },
+      {
+        "name": "The No Fake Italic Rule",
+        "body": "Never italicize Hebrew for emphasis; use weight or Ember Red instead.",
+        "section": "typography"
+      },
+      {
+        "name": "The Thumb Reach Rule",
+        "body": "In-workout controls stay inside the 448px column and in the bottom half of the screen; nothing the user needs mid-set lives in the header.",
+        "section": "layout"
+      },
+      {
+        "name": "The Glow Is Earned Rule",
+        "body": "The large red glow sits under exactly one element per screen: the action that completes the current step. A small glow (`shadow-md`) can mark the current item in a sequence, such as the active set dot.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** use the semantic tokens (`bg-primary`, `text-muted-foreground`, `border-border`) so light, dark and landing all theme correctly.",
+      "**Do** use logical properties (`ps-`, `pe-`, `start-`, `end-`) and flip directional icons with `rtl:-scale-x-100`.",
+      "**Do** size anything touched mid-workout at 44px or larger (`size=\"touch\"`, `icon-touch`), and the step-completing action at 64px.",
+      "**Do** render every changing number with `tabular-nums`, and wrap numbers, prices and times in `<bdi>` inside Hebrew text.",
+      "**Do** keep the landing inside `.landing` so it stays dark and keeps its 6px radius base regardless of the app theme.",
+      "**Do** honor reduced motion: the global rule collapses transitions, and the landing rise and marquee turn off completely.",
+      "**Do** put a bottom-up black scrim under any white text on a photo."
+    ],
+    "donts": [
+      "**Don't** hardcode hex values in components; add or reuse a token. (Known drift: `auth-shell.tsx`, `auth-switch.tsx` and `machine-image.tsx` still use a hardcoded `#e4494f`.)",
+      "**Don't** put the large Red glow on more than one element per screen.",
+      "**Don't** italicize Hebrew or use synthetic slants for emphasis.",
+      "**Don't** apply the landing's tighter radius or always-dark theme to app screens, or the app's rounder radius to the landing.",
+      "**Don't** introduce a second typeface; hierarchy comes from Heebo's weight and size.",
+      "**Don't** use cool grey surfaces in light mode; neutrals stay stone-warm."
+    ]
+  }
+}
