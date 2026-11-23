@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      areas: {
+        Row: {
+          created_at: string
+          key: string
+          name: string
+          sort_order: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          name: string
+          sort_order?: number
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          name?: string
+          sort_order?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       exercises: {
         Row: {
           area: string
@@ -182,6 +206,7 @@ export type Database = {
         Args: { p_client_event_id: string; p_exercise_id: string }
         Returns: Json
       }
+      seed_default_areas: { Args: { p_rows: Json }; Returns: number }
       seed_default_exercises: { Args: { p_rows: Json }; Returns: number }
     }
     Enums: {

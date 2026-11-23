@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useRef, useState } from "react";
+import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { areasQO } from "@/lib/workout.queries";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2, Minus, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -69,6 +70,8 @@ export function ExerciseFormDialog({ area, exercise, onClose }: ExerciseFormDial
   const createFn = useServerFn(createExercise);
   const updateFn = useServerFn(updateExercise);
   const deleteFn = useServerFn(deleteExercise);
+  const { data: areas } = useSuspenseQuery(areasQO);
+  const areaLabel = areaName(area, areas);
 
   const [name, setName] = useState(exercise?.name ?? "");
   const [weight, setWeight] = useState(String(exercise?.weight ?? 25));
@@ -116,7 +119,7 @@ export function ExerciseFormDialog({ area, exercise, onClose }: ExerciseFormDial
         <DialogContent dir="rtl" className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="text-xl font-black">
-              {isEdit ? "עריכת מכשיר" : `הוספת מכשיר · ${areaName(area)}`}
+              {isEdit ? "עריכת מכשיר" : `הוספת מכשיר · ${areaLabel}`}
             </DialogTitle>
             <DialogDescription>
               בחרו את המכשיר מהתמונות, ואז כוונו משקל, חזרות וסטים.
@@ -126,6 +129,7 @@ export function ExerciseFormDialog({ area, exercise, onClose }: ExerciseFormDial
           <form onSubmit={submit} className="flex flex-col gap-5" noValidate>
             <MachinePicker
               area={area}
+              areaLabel={areaLabel}
               selected={machineNumberFromName(name)}
               onPick={(m) => {
                 setName(machineExerciseName(m.number));
@@ -249,10 +253,12 @@ export function ExerciseFormDialog({ area, exercise, onClose }: ExerciseFormDial
 
 function MachinePicker({
   area,
+  areaLabel,
   selected,
   onPick,
 }: {
   area: string;
+  areaLabel: string;
   selected: number | null;
   onPick: (m: Machine) => void;
 }) {
@@ -262,6 +268,14 @@ function MachinePicker({
     inArea.length === 0 || (selected !== null && !inArea.some((m) => m.number === selected)),
   );
   const shown = showAll ? [...inArea, ...rest] : inArea;
+
+  // On open, scroll the list (not the sheet) so the already-chosen machine is visible.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const box = scrollRef.current;
+    const tile = box?.querySelector<HTMLElement>('[aria-checked="true"]');
+    if (box && tile) box.scrollTop = tile.offsetTop - 8;
+  }, []);
 
   return (
     <div className="flex flex-col gap-2">
@@ -276,57 +290,63 @@ function MachinePicker({
             className="h-11 px-1"
             onClick={() => setShowAll((v) => !v)}
           >
-            {showAll ? `רק ${areaName(area)}` : "כל המכשירים"}
+            {showAll ? `רק ${areaLabel}` : "כל המכשירים"}
           </Button>
         )}
       </div>
+      {/* Only the full 28-machine list gets its own scroll; an area's handful shows in full so
+          the sheet doesn't nest two scroll regions. The scroll lives on this wrapper, not the
+          grid: a height-capped grid shrinks its overflow-hidden tiles to ~0 and they overlap. */}
       <div
-        role="radiogroup"
-        aria-labelledby="ex-machine-label"
-        // Only the full 28-machine list gets its own scroll; an area's handful shows in full
-        // so the sheet doesn't nest two scroll regions.
+        ref={scrollRef}
         className={cn(
-          "grid grid-cols-3 gap-2 rounded-xl sm:grid-cols-4",
-          showAll && "max-h-72 overflow-y-auto overscroll-contain",
+          "relative -m-1 rounded-xl p-1",
+          showAll && "max-h-[55dvh] overflow-y-auto overscroll-contain",
         )}
       >
-        {shown.map((m) => {
-          const active = m.number === selected;
-          return (
-            <button
-              key={m.number}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              aria-label={`מכשיר ${m.number} — ${m.nameHe}`}
-              onClick={() => onPick(m)}
-              className={cn(
-                "group relative aspect-square overflow-hidden rounded-xl border-2 bg-muted text-start transition-[border-color,transform] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                active ? "border-primary" : "border-transparent",
-              )}
-            >
-              <img
-                src={m.image}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 size-full object-cover"
-              />
-              <span className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
-              <span className="absolute start-1.5 top-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-xs font-bold text-white tabular-nums">
-                {m.number}
-              </span>
-              {active && (
-                <span className="absolute end-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-primary text-primary-foreground">
-                  <Check className="size-4" aria-hidden />
+        <div
+          role="radiogroup"
+          aria-labelledby="ex-machine-label"
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+        >
+          {shown.map((m) => {
+            const active = m.number === selected;
+            return (
+              <button
+                key={m.number}
+                type="button"
+                role="radio"
+                aria-checked={active}
+                aria-label={`מכשיר ${m.number} — ${m.nameHe}`}
+                onClick={() => onPick(m)}
+                className={cn(
+                  "group relative aspect-[4/3] overflow-hidden rounded-xl border-2 bg-muted text-start transition-[border-color,transform] active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                  active ? "border-primary" : "border-transparent",
+                )}
+              >
+                <img
+                  src={m.image}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                  className="absolute inset-0 size-full object-cover"
+                />
+                <span className="absolute inset-0 bg-linear-to-t from-black/80 via-black/10 to-transparent" />
+                <span className="absolute start-1.5 top-1.5 rounded-md bg-black/60 px-1.5 py-0.5 text-xs font-bold text-white tabular-nums">
+                  {m.number}
                 </span>
-              )}
-              <span className="absolute inset-x-1.5 bottom-1.5 line-clamp-2 text-[11px] font-semibold leading-tight text-white">
-                {m.nameHe}
-              </span>
-            </button>
-          );
-        })}
+                {active && (
+                  <span className="absolute end-1.5 top-1.5 grid size-6 place-items-center rounded-full bg-primary text-primary-foreground">
+                    <Check className="size-4" aria-hidden />
+                  </span>
+                )}
+                <span className="absolute inset-x-2 bottom-1.5 truncate text-sm font-semibold text-white">
+                  {m.nameHe}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

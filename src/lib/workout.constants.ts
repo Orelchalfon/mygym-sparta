@@ -19,7 +19,9 @@ export const AREAS: { id: AreaId; name: string; emoji: string }[] = [
   { id: "stretch", name: "מתיחות", emoji: "🧘" },
 ];
 
-export const areaName = (id: string) => AREAS.find((a) => a.id === id)?.name ?? id;
+/** The user's own name first, then the built-in default; never shows a raw key (custom keys are uuids). */
+export const areaName = (id: string, areas?: readonly { key: string; name: string }[]) =>
+  areas?.find((a) => a.key === id)?.name ?? AREAS.find((a) => a.id === id)?.name ?? "אזור אימון";
 
 export const REST_SECONDS = 45;
 

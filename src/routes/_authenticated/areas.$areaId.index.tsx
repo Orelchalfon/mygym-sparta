@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import type { Exercise } from "@/lib/workout.functions";
-import { activeSessionQO, exercisesQO } from "@/lib/workout.queries";
+import { activeSessionQO, areasQO, exercisesQO } from "@/lib/workout.queries";
 import { areaName } from "@/lib/workout.constants";
 import { getMachine } from "@/lib/machines";
 import { Button } from "@/components/ui/button";
@@ -10,17 +10,21 @@ import { UserActions } from "@/components/user-actions";
 import { AppHeader } from "@/components/app-header";
 import { MachineImage } from "@/components/machine-image";
 import { ExerciseFormDialog } from "@/components/exercise-form-dialog";
+import { AreaFormDialog } from "@/components/area-form-dialog";
 import { useState } from "react";
 import { SITE_URL } from "@/lib/site";
 
 export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
-  loader: ({ context }) =>
-    Promise.all([
+  loader: async ({ context }) => {
+    const [areas] = await Promise.all([
+      context.queryClient.ensureQueryData(areasQO),
       context.queryClient.ensureQueryData(exercisesQO),
       context.queryClient.ensureQueryData(activeSessionQO),
-    ]),
-  head: ({ params }) => {
-    const area = areaName(params.areaId);
+    ]);
+    return { areas };
+  },
+  head: ({ params, loaderData }) => {
+    const area = areaName(params.areaId, loaderData?.areas);
     const desc = `מכשירי האימון באזור ${area} — נהל משקל, חזרות וסטים והתחל אימון עם טיימר מנוחה אוטומטי.`;
     const url = `${SITE_URL}/areas/${params.areaId}`;
     return {
@@ -42,24 +46,54 @@ export const Route = createFileRoute("/_authenticated/areas/$areaId/")({
 
 function AreaPage() {
   const { areaId } = Route.useParams();
+  const navigate = useNavigate();
+  const { data: areas } = useSuspenseQuery(areasQO);
   const { data: all } = useSuspenseQuery(exercisesQO);
   const { data: session } = useSuspenseQuery(activeSessionQO);
+  const area = areas.find((a) => a.key === areaId);
   const list = all.filter((e) => e.area === areaId);
 
   const [editing, setEditing] = useState<Exercise | null>(null);
   const [adding, setAdding] = useState(false);
+  const [editingArea, setEditingArea] = useState(false);
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <AppHeader
         back={{ to: "/areas", label: "חזרה לאזורי האימון" }}
         eyebrow="אזור אימון"
-        title={areaName(areaId)}
-        actions={<UserActions />}
+        title={areaName(areaId, areas)}
+        actions={
+          <>
+            {area && (
+              <Button
+                size="icon-touch"
+                variant="ghost"
+                onClick={() => setEditingArea(true)}
+                aria-label={`עריכת האזור ${area.name}`}
+              >
+                <Pencil aria-hidden />
+              </Button>
+            )}
+            <UserActions />
+          </>
+        }
       />
 
       <main className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
-        {list.length === 0 ? (
+        {!area ? (
+          // Deleted area or bad URL: no add button, or new machines would land in an area nobody can see.
+          <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/40 px-6 py-16 text-center">
+            <p className="text-lg font-bold">האזור לא נמצא</p>
+            <p className="mt-1 text-muted-foreground">ייתכן שהוא נמחק.</p>
+            <Link
+              to="/areas"
+              className="mt-6 font-bold text-primary underline-offset-4 hover:underline"
+            >
+              חזרה לאזורי האימון
+            </Link>
+          </div>
+        ) : list.length === 0 ? (
           <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-border bg-card/40 px-6 py-16 text-center">
             <div className="grid size-16 place-items-center rounded-2xl bg-primary/10 text-primary">
               <Dumbbell className="size-8" aria-hidden />
@@ -106,6 +140,14 @@ function AreaPage() {
         <ExerciseFormDialog area={areaId} exercise={editing} onClose={() => setEditing(null)} />
       )}
       {adding && <ExerciseFormDialog area={areaId} onClose={() => setAdding(false)} />}
+      {editingArea && area && (
+        <AreaFormDialog
+          area={area}
+          machineCount={list.length}
+          onClose={() => setEditingArea(false)}
+          onDeleted={() => navigate({ to: "/areas" })}
+        />
+      )}
     </div>
   );
 }

@@ -1,13 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { activeSessionQO, exercisesQO } from "@/lib/workout.queries";
-import { AREAS } from "@/lib/workout.constants";
+import { activeSessionQO, areasQO, exercisesQO } from "@/lib/workout.queries";
+import type { Area } from "@/lib/workout.functions";
 import { areaCover } from "@/lib/machines";
 import { supabase } from "@/integrations/supabase/client";
-import { Dumbbell, ChevronLeft } from "lucide-react";
+import { Dumbbell, ChevronLeft, Pencil, Plus } from "lucide-react";
 import { AppHeader } from "@/components/app-header";
 import { UserActions } from "@/components/user-actions";
 import { MachineImage } from "@/components/machine-image";
+import { AreaFormDialog } from "@/components/area-form-dialog";
+import { Button } from "@/components/ui/button";
 import { ActiveWorkoutBar } from "@/components/workout/active-workout-bar";
 import { useEffect, useState } from "react";
 import { SITE_URL } from "@/lib/site";
@@ -15,6 +17,7 @@ import { SITE_URL } from "@/lib/site";
 export const Route = createFileRoute("/_authenticated/areas/")({
   loader: ({ context }) =>
     Promise.all([
+      context.queryClient.ensureQueryData(areasQO),
       context.queryClient.ensureQueryData(exercisesQO),
       context.queryClient.fetchQuery(activeSessionQO),
     ]),
@@ -47,9 +50,12 @@ export const Route = createFileRoute("/_authenticated/areas/")({
 });
 
 function AreasPage() {
+  const { data: areas } = useSuspenseQuery(areasQO);
   const { data: exercises } = useSuspenseQuery(exercisesQO);
   const { data: session } = useSuspenseQuery(activeSessionQO);
   const [name, setName] = useState<string>("");
+  const [editing, setEditing] = useState<Area | null>(null);
+  const [adding, setAdding] = useState(false);
 
   useEffect(() => {
     try {
@@ -91,21 +97,21 @@ function AreasPage() {
         </div>
 
         <ul className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 lg:grid-cols-4">
-          {AREAS.map((area, i) => {
-            const count = exercises.filter((e) => e.area === area.id).length;
+          {areas.map((area, i) => {
+            const count = exercises.filter((e) => e.area === area.key).length;
             return (
               <li
-                key={area.id}
-                className="animate-in fade-in slide-in-from-bottom-2 [animation-duration:300ms] [animation-fill-mode:both]"
+                key={area.key}
+                className="relative animate-in fade-in slide-in-from-bottom-2 [animation-duration:300ms] [animation-fill-mode:both]"
                 style={{ animationDelay: `${i * 40}ms` }}
               >
                 <Link
                   to="/areas/$areaId"
-                  params={{ areaId: area.id }}
+                  params={{ areaId: area.key }}
                   className="group relative block aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-[transform,box-shadow] duration-200 hover:shadow-lg active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 >
                   <MachineImage
-                    machine={areaCover(area.id)}
+                    machine={areaCover(area.key, exercises)}
                     className="absolute inset-0"
                     imgClassName="transition-transform duration-300 group-hover:scale-105"
                   />
@@ -134,11 +140,42 @@ function AreasPage() {
                     </span>
                   </div>
                 </Link>
+                {/* Sibling of the Link, not a child, so tapping it doesn't navigate. */}
+                <Button
+                  size="icon-touch"
+                  variant="ghost"
+                  onClick={() => setEditing(area)}
+                  aria-label={`עריכת ${area.name}`}
+                  className="absolute end-2 top-2 bg-black/45 text-white backdrop-blur hover:bg-black/65 hover:text-white"
+                >
+                  <Pencil aria-hidden />
+                </Button>
               </li>
             );
           })}
+          <li>
+            <button
+              type="button"
+              onClick={() => setAdding(true)}
+              className="flex aspect-[4/5] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border bg-card/40 text-muted-foreground transition-colors hover:border-primary hover:text-primary active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <span className="grid size-12 place-items-center rounded-full bg-primary/10 text-primary">
+                <Plus className="size-6" aria-hidden />
+              </span>
+              <span className="text-base font-bold">אזור חדש</span>
+            </button>
+          </li>
         </ul>
       </main>
+
+      {editing && (
+        <AreaFormDialog
+          area={editing}
+          machineCount={exercises.filter((e) => e.area === editing.key).length}
+          onClose={() => setEditing(null)}
+        />
+      )}
+      {adding && <AreaFormDialog onClose={() => setAdding(false)} />}
     </div>
   );
 }
