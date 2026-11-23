@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-23T08:21:49.528Z",
+  "generatedAt": "2026-11-23T08:35:30.635Z",
   "title": "Design System: Sparta Gym",
   "extensions": {
     "colorMeta": {
@@ -36,7 +36,7 @@
           "oklch(95.0% 0.012 23.7)"
         ]
       },
-      "ember-red": {
+      "ember": {
         "role": "primary",
         "displayName": "Ember Red",
         "canonical": "#e4494f",
@@ -50,6 +50,22 @@
           "oklch(72.1% 0.129 22.5)",
           "oklch(83.6% 0.066 22.5)",
           "oklch(95.0% 0.012 22.5)"
+        ]
+      },
+      "ember-deep": {
+        "role": "primary",
+        "displayName": "Ember Deep",
+        "canonical": "#7f1418",
+        "oklch": "oklch(38.7% 0.141 25.4)",
+        "tonalRamp": [
+          "oklch(15.0% 0.043 25.4)",
+          "oklch(26.4% 0.089 25.4)",
+          "oklch(37.9% 0.126 25.4)",
+          "oklch(49.3% 0.141 25.4)",
+          "oklch(60.7% 0.129 25.4)",
+          "oklch(72.1% 0.095 25.4)",
+          "oklch(83.6% 0.049 25.4)",
+          "oklch(95.0% 0.009 25.4)"
         ]
       },
       "ember-red-ink": {
@@ -550,7 +566,7 @@
   ],
   "narrative": {
     "northStar": "The Gym-Floor Companion",
-    "overview": "**Creative North Star: \"The Gym-Floor Companion\"**\n\nSparta is designed for a phone held in a sweaty hand between sets. Each screen gives one clear answer and one obvious next tap: a huge number, a heavy Hebrew title, and a single red action. Everything else steps back into warm neutral surfaces. The app gets its energy from type weight and scale (Heebo at 900) rather than from ornament, and its warmth from slightly warm, stone-tinted neutrals rather than cold greys.\n\nThe system has two registers that share one brand. The **app** (areas, exercise, rest timer, history) has light and dark themes designed together, with generous rounding and touch-sized controls. The **landing** is always dark, scoped under `.landing`. It uses tighter corners and white pill CTAs over near-black, with real gym photography, display-sized headlines, a slow benefits ticker and staggered rise-in motion. The landing persuades and the app gets out of the way.\n\nDensity is low and deliberate. Interactive targets are at least 44px, the main in-workout action is 64px tall and spans the full width, and content columns stay narrow (448px in the workout flow) so a thumb reaches everything.",
+    "overview": "",
     "keyCharacteristics": [
       "Hebrew-native, RTL, logical properties throughout; directional icons flip in RTL.",
       "Heebo Variable only, leaning on weight 900 for every heading and number.",
@@ -606,7 +622,7 @@
       "**Do** put a bottom-up black scrim under any white text on a photo."
     ],
     "donts": [
-      "**Don't** hardcode hex values in components; add or reuse a token. (Known drift: `auth-shell.tsx`, `auth-switch.tsx` and `machine-image.tsx` still use a hardcoded `#e4494f`.)",
+      "**Don't** hardcode hex values in components; add or reuse a token. For red on an always-dark panel, use `ember` / `ember-deep`, not `primary` (which shifts to #c8262d in the light theme).",
       "**Don't** put the large Red glow on more than one element per screen.",
       "**Don't** italicize Hebrew or use synthetic slants for emphasis.",
       "**Don't** apply the landing's tighter radius or always-dark theme to app screens, or the app's rounder radius to the landing.",

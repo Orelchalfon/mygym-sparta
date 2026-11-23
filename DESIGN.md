@@ -4,7 +4,8 @@ description: Hebrew-first gym companion: heavy type, one red action, built for t
 colors:
   sparta-red: "#c8262d"
   sparta-red-night: "#d93a40"
-  ember-red: "#e4494f"
+  ember: "#e4494f"
+  ember-deep: "#7f1418"
   ember-red-ink: "#f0585e"
   oxblood: "#8f1d22"
   red-wash: "#f7e8e8"
@@ -175,7 +176,8 @@ One red accent on warm neutrals: stone and chalk in light mode, iron blacks in d
 ### Primary
 - **Sparta Red** (sparta-red): the primary action in the light app theme: buttons, focus ring, progress stroke, current set, glass-dock ink. Tuned so white text on it passes AA (5.6:1).
 - **Sparta Red, Night** (sparta-red-night): the same role in the dark app theme, lifted just enough to keep white text at AA (4.5:1).
-- **Ember Red** (ember-red): the landing's primary accent and the dark-theme focus ring. Softer and brighter for large display type on near-black.
+- **Ember Red** (ember): the landing's primary accent and the dark-theme focus ring. Softer and brighter for large display type on near-black. Also exposed as the theme-invariant `--ember` token (Tailwind `ember`) for panels that stay dark in both themes: the auth brand panel, its step dots and progress, and the machine-image placeholder icon.
+- **Ember Deep** (ember-deep): the dark oxblood stop in the black → red → black washes over gym photos (auth panels, `via-ember-deep/75`) and the machine-image placeholder gradient (`from-ember-deep`). Theme-invariant like Ember Red; never used as a fill on its own.
 - **Ember Red Ink** (ember-red-ink): small red text and icons on the dark liquid-glass dock, lighter again to hold about 5:1 on frosted black.
 - **Oxblood** (oxblood): red text on the pale red wash (light accent foreground).
 - **Red Wash** (red-wash): light-theme accent and hover background; a tint, never a fill for large areas.
@@ -304,7 +306,7 @@ A 256–288px ring: muted track, Sparta Red progress stroke that animates linear
 - **Do** put a bottom-up black scrim under any white text on a photo.
 
 ### Don't:
-- **Don't** hardcode hex values in components; add or reuse a token. (Known drift: `auth-shell.tsx`, `auth-switch.tsx` and `machine-image.tsx` still use a hardcoded `#e4494f`.)
+- **Don't** hardcode hex values in components; add or reuse a token. For red on an always-dark panel, use `ember` / `ember-deep`, not `primary` (which shifts to #c8262d in the light theme).
 - **Don't** put the large Red glow on more than one element per screen.
 - **Don't** italicize Hebrew or use synthetic slants for emphasis.
 - **Don't** apply the landing's tighter radius or always-dark theme to app screens, or the app's rounder radius to the landing.
