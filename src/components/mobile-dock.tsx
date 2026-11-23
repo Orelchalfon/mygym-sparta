@@ -4,6 +4,7 @@ import {
   AudioLines,
   ChevronLeft,
   CirclePlay,
+  Cloud,
   LogOut,
   Moon,
   Music,
@@ -30,6 +31,7 @@ const APPS: { id: MusicApp; label: string; icon: ComponentType<{ className?: str
   { id: "spotify", label: "Spotify", icon: AudioLines },
   { id: "apple", label: "Apple Music", icon: Music2 },
   { id: "youtube", label: "YouTube Music", icon: CirclePlay },
+  { id: "soundcloud", label: "SoundCloud", icon: Cloud },
 ];
 
 const ring = "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
@@ -136,7 +138,7 @@ export function MobileDock() {
         </Section>
 
         <Section title="מוזיקה לאימון" open={open} index={i++}>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {APPS.map(({ id, label, icon: Icon }) => {
               const spotifyOn = id === "spotify" && !!music.connected;
               const chosen = music.preferredApp === id || spotifyOn;

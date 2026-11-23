@@ -24,11 +24,9 @@ export const exchangeSpotifyCode = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .validator((data: { code: string; verifier: string; redirectUri: string }) => data)
   .handler(async ({ data, context }) => {
+    // PKCE: the code_verifier proves the caller, so no client secret is needed.
     const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-    if (!clientId || !clientSecret) {
-      throw new Error("Spotify credentials not configured");
-    }
+    if (!clientId) throw new Error("Spotify client ID not configured");
 
     const body = new URLSearchParams({
       grant_type: "authorization_code",
@@ -40,10 +38,7 @@ export const exchangeSpotifyCode = createServerFn({ method: "POST" })
 
     const res = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
     });
 
@@ -92,10 +87,7 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
     }
 
     const clientId = process.env.SPOTIFY_CLIENT_ID;
-    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
-    if (!clientId || !clientSecret) {
-      throw new Error("Spotify credentials not configured");
-    }
+    if (!clientId) throw new Error("Spotify client ID not configured");
 
     const body = new URLSearchParams({
       grant_type: "refresh_token",
@@ -105,10 +97,7 @@ export const getSpotifyAccessToken = createServerFn({ method: "POST" })
 
     const res = await fetch("https://accounts.spotify.com/api/token", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: "Basic " + Buffer.from(`${clientId}:${clientSecret}`).toString("base64"),
-      },
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body,
     });
 

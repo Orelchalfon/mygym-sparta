@@ -31,12 +31,13 @@ export type TrackInfo = {
   duration: number;
 };
 
-export type MusicApp = "spotify" | "apple" | "youtube";
+export type MusicApp = "spotify" | "apple" | "youtube" | "soundcloud";
 
-/** Apple Music / YouTube Music have no usable web playback API — universal links open the native app. */
+/** Apple Music / YouTube Music / SoundCloud have no usable web playback API — universal links open the native app. */
 const APP_URLS: Record<Exclude<MusicApp, "spotify">, string> = {
   apple: "https://music.apple.com/",
   youtube: "https://music.youtube.com/",
+  soundcloud: "https://soundcloud.com/",
 };
 
 const APP_KEY = "music-app";
@@ -109,7 +110,8 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     try {
       const saved = localStorage.getItem(APP_KEY);
-      if (saved === "spotify" || saved === "apple" || saved === "youtube") setPreferredApp(saved);
+      if (saved === "spotify" || (saved && Object.hasOwn(APP_URLS, saved)))
+        setPreferredApp(saved as MusicApp);
     } catch {
       // Storage unavailable (private mode) — just don't remember.
     }
