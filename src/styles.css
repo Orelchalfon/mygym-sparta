@@ -38,6 +38,8 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-glass-ink: var(--glass-ink);
+  --color-ember: var(--ember);
+  --color-ember-deep: var(--ember-deep);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
@@ -117,6 +119,9 @@
   --glass-highlight: rgb(255 255 255 / 0.85);
   --glass-shade: rgb(0 0 0 / 0.04);
   --glass-ink: #c8262d;
+  /* Theme-invariant brand red for always-dark panels (auth, machine placeholder); not overridden in .dark. */
+  --ember: #e4494f;
+  --ember-deep: #7f1418;
 }
 
 .dark {

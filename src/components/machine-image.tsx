@@ -39,9 +39,9 @@ export function MachineImage({
         <div
           aria-hidden
           // Always dark (like the photos) so overlaid white text reads in both themes.
-          className="absolute inset-0 grid place-items-center bg-linear-to-br from-[#7f1418] via-neutral-900 to-neutral-950"
+          className="absolute inset-0 grid place-items-center bg-linear-to-br from-ember-deep via-neutral-900 to-neutral-950"
         >
-          <div className="flex flex-col items-center gap-2 text-[#e4494f]">
+          <div className="flex flex-col items-center gap-2 text-ember">
             <Dumbbell className="size-8" />
             {label && <span className="text-xs font-bold text-white/60">{label}</span>}
           </div>

@@ -73,8 +73,8 @@ function BrandPanel({ step }: { step: ResetStep }) {
           decoding="async"
           className="absolute inset-0 size-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-linear-to-br from-black/85 via-[#7f1418]/75 to-black/90" />
-        <div className="absolute -bottom-24 start-1/4 size-80 rounded-full bg-[#e4494f]/30 blur-3xl" />
+        <div className="absolute inset-0 bg-linear-to-br from-black/85 via-ember-deep/75 to-black/90" />
+        <div className="absolute -bottom-24 start-1/4 size-80 rounded-full bg-ember/30 blur-3xl" />
       </div>
 
       <div className="relative flex flex-col gap-8">
@@ -98,7 +98,7 @@ function BrandPanel({ step }: { step: ResetStep }) {
                     aria-hidden
                     className={cn(
                       "absolute start-[17px] top-10 bottom-1 w-0.5 rounded-full transition-colors duration-300",
-                      state === "done" ? "bg-[#e4494f]" : "bg-white/20",
+                      state === "done" ? "bg-ember" : "bg-white/20",
                     )}
                   />
                 )}
@@ -130,8 +130,8 @@ function StepDot({ n, state }: { n: number; state: "done" | "current" | "upcomin
       aria-hidden
       className={cn(
         "relative z-10 grid size-9 shrink-0 place-items-center rounded-full text-sm font-bold tabular-nums transition-all duration-300",
-        state === "done" && "bg-[#e4494f] text-white",
-        state === "current" && "bg-white text-neutral-950 ring-4 ring-[#e4494f]/50",
+        state === "done" && "bg-ember text-white",
+        state === "current" && "bg-white text-neutral-950 ring-4 ring-ember/50",
         state === "upcoming" && "border border-white/30 text-white/70",
       )}
     >
