@@ -224,8 +224,8 @@ function OverlayDecor() {
         className="absolute inset-0 size-full object-cover opacity-45"
       />
       <div className="absolute inset-0 bg-linear-to-br from-black/85 via-[#7f1418]/75 to-black/90" />
-      <div className="absolute -bottom-24 start-1/4 size-80 rounded-full bg-[#e4494f]/30 blur-3xl" />
-      <div className="absolute -top-24 end-1/4 size-72 rounded-full bg-[#e4494f]/20 blur-3xl" />
+      <div className="absolute -bottom-24 start-1/4 size-80 rounded-full bg-ember/30 blur-3xl" />
+      <div className="absolute -top-24 end-1/4 size-72 rounded-full bg-ember/20 blur-3xl" />
     </div>
   );
 }
@@ -254,7 +254,7 @@ function SetPreview() {
           <span className="grid size-6 place-items-center rounded-full bg-white/25">
             <Check className="size-3.5" />
           </span>
-          <span className="grid size-6 place-items-center rounded-full bg-[#e4494f] text-xs font-bold">
+          <span className="grid size-6 place-items-center rounded-full bg-ember text-xs font-bold">
             2
           </span>
           <span className="grid size-6 place-items-center rounded-full bg-white/10 text-xs">3</span>
@@ -281,7 +281,7 @@ function RestPreview() {
       </div>
       {/* Width-based bar fills from the inline start (RTL-safe). */}
       <div className="mt-3 h-2 rounded-full bg-white/20">
-        <div className="h-full w-1/3 rounded-full bg-[#e4494f]" />
+        <div className="h-full w-1/3 rounded-full bg-ember" />
       </div>
       <p className="mt-2 text-xs text-white/75">הסט הבא: 3 מתוך 3</p>
     </div>
