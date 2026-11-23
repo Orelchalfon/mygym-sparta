@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -43,6 +44,7 @@ export function AreaFormDialog({
 }: AreaFormDialogProps) {
   const isEdit = !!area;
   const qc = useQueryClient();
+  const router = useRouter();
   const createFn = useServerFn(createArea);
   const updateFn = useServerFn(updateArea);
   const deleteFn = useServerFn(deleteArea);
@@ -55,7 +57,9 @@ export function AreaFormDialog({
     mutationFn: (n: string): Promise<unknown> =>
       area ? updateFn({ data: { key: area.key, name: n } }) : createFn({ data: { name: n } }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["areas"] });
+      // Refetch first, then re-run loaders: ensureQueryData would otherwise hand head() the
+      // cached old name and the tab title would stay stale.
+      void qc.invalidateQueries({ queryKey: ["areas"] }).then(() => router.invalidate());
       toast.success(isEdit ? "השם עודכן" : "האזור נוסף");
       onClose();
     },
