@@ -73,7 +73,7 @@ function BrandPanel({ step }: { step: ResetStep }) {
           decoding="async"
           className="absolute inset-0 size-full object-cover opacity-40"
         />
-        <div className="absolute inset-0 bg-linear-to-br from-black/85 via-[#7f1418]/75 to-black/90" />
+        <div className="absolute inset-0 bg-linear-to-br from-black/85 via-ember-deep/75 to-black/90" />
         <div className="absolute -bottom-24 start-1/4 size-80 rounded-full bg-ember/30 blur-3xl" />
       </div>
 
