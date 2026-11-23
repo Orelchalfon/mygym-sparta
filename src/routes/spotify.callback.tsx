@@ -21,7 +21,7 @@ function SpotifyCallback() {
     const verifier = sessionStorage.getItem("spotify_pkce_verifier");
 
     if (error) {
-      setStatus("החיבור לספוטיפיי בוטל");
+      setStatus(`החיבור לספוטיפיי בוטל (${error})`);
       setTimeout(() => navigate({ to: "/areas" }), 1500);
       return;
     }
