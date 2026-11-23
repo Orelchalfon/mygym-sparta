@@ -47,3 +47,8 @@ export const SEED_EXERCISES: {
   { area: "triceps", name: "מכשיר חדש", weight: 25, reps: 7, sets: 3 },
   { area: "abs", name: "מכשיר חדש", weight: 25, reps: 7, sets: 3 },
 ];
+
+/** Starter machines for a user with none: all for a new user (no areas yet), otherwise only
+ *  those whose area still exists, so deleted areas don't get invisible "ghost" machines. */
+export const starterExercises = (areaKeys: readonly string[]) =>
+  areaKeys.length === 0 ? SEED_EXERCISES : SEED_EXERCISES.filter((r) => areaKeys.includes(r.area));
