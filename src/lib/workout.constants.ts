@@ -19,7 +19,9 @@ export const AREAS: { id: AreaId; name: string; emoji: string }[] = [
   { id: "stretch", name: "מתיחות", emoji: "🧘" },
 ];
 
-export const areaName = (id: string) => AREAS.find((a) => a.id === id)?.name ?? id;
+/** The user's own name first, then the built-in default; never shows a raw key (custom keys are uuids). */
+export const areaName = (id: string, areas?: readonly { key: string; name: string }[]) =>
+  areas?.find((a) => a.key === id)?.name ?? AREAS.find((a) => a.id === id)?.name ?? "אזור אימון";
 
 export const REST_SECONDS = 45;
 
@@ -45,3 +47,8 @@ export const SEED_EXERCISES: {
   { area: "triceps", name: "מכשיר חדש", weight: 25, reps: 7, sets: 3 },
   { area: "abs", name: "מכשיר חדש", weight: 25, reps: 7, sets: 3 },
 ];
+
+/** Starter machines for a user with none: all for a new user (no areas yet), otherwise only
+ *  those whose area still exists, so deleted areas don't get invisible "ghost" machines. */
+export const starterExercises = (areaKeys: readonly string[]) =>
+  areaKeys.length === 0 ? SEED_EXERCISES : SEED_EXERCISES.filter((r) => areaKeys.includes(r.area));

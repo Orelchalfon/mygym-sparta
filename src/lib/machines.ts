@@ -173,9 +173,18 @@ const AREA_COVER: Partial<Record<AreaId, number>> = {
   abs: 3,
 };
 
-export const areaCover = (area: string) => {
+/** Built-in cover, else the photo of the area's first recognised machine (custom areas). */
+export const areaCover = (
+  area: string,
+  exercises: readonly { area: string; name: string }[] = [],
+) => {
   const n = AREA_COVER[area as AreaId];
-  return n ? MACHINES.get(n) : undefined;
+  if (n) return MACHINES.get(n);
+  for (const e of exercises) {
+    const m = e.area === area ? getMachine(e.name) : undefined;
+    if (m) return m;
+  }
+  return undefined;
 };
 
 /** First integer in the name: "מכשיר 9-2" → 9, "מכשיר6" → 6, "מכשיר חדש" → null. */

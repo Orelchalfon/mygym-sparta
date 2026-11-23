@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getMachine } from "@/lib/machines";
 import { areaName } from "@/lib/workout.constants";
-import { sessionQO } from "@/lib/workout.queries";
+import { areasQO, sessionQO } from "@/lib/workout.queries";
 import {
   formatSessionDate,
   formatTime,
@@ -15,7 +15,11 @@ import { UserActions } from "@/components/user-actions";
 import { MachineImage } from "@/components/machine-image";
 
 export const Route = createFileRoute("/_authenticated/history/$sessionId")({
-  loader: ({ context, params }) => context.queryClient.ensureQueryData(sessionQO(params.sessionId)),
+  loader: ({ context, params }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(sessionQO(params.sessionId)),
+      context.queryClient.ensureQueryData(areasQO),
+    ]),
   head: () => ({
     meta: [{ title: "סיכום אימון — ספרטא" }, { name: "robots", content: "noindex" }],
   }),
@@ -25,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/history/$sessionId")({
 function SessionPage() {
   const { sessionId } = Route.useParams();
   const { data: session } = useSuspenseQuery(sessionQO(sessionId));
+  const { data: areas } = useSuspenseQuery(areasQO);
 
   if (!session) {
     return (
@@ -72,7 +77,7 @@ function SessionPage() {
                   <div className="min-w-0">
                     <h2 className="truncate font-bold">{machine?.nameHe ?? g.name}</h2>
                     <p className="truncate text-sm text-muted-foreground">
-                      {areaName(g.area)}
+                      {areaName(g.area, areas)}
                       {machine && ` · מכשיר ${machine.number}`}
                     </p>
                   </div>

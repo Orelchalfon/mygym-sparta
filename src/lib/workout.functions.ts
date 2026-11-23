@@ -1,7 +1,78 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { z } from "zod";
-import { SEED_EXERCISES } from "./workout.constants";
+import { AREAS, starterExercises } from "./workout.constants";
+
+export type Area = { key: string; name: string; sort_order: number };
+
+const areaNameSchema = z.string().trim().min(1).max(40);
+
+export const listAreas = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<Area[]> => {
+    const { supabase } = context;
+    const select = () =>
+      supabase
+        .from("areas")
+        .select("key, name, sort_order")
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: true });
+
+    const { data, error } = await select();
+    if (error) throw new Error(error.message);
+    if (data.length > 0) return data;
+
+    // shortcut: deleting every area reseeds the defaults on next load; add a "seeded" flag if that bothers anyone.
+    const seed = await supabase.rpc("seed_default_areas", {
+      p_rows: AREAS.map(({ id, name }, i) => ({ key: id, name, sort_order: i })),
+    });
+    if (seed.error) throw new Error(seed.error.message);
+    const again = await select();
+    if (again.error) throw new Error(again.error.message);
+    return again.data;
+  });
+
+export const createArea = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d) => z.object({ name: areaNameSchema }).parse(d))
+  .handler(async ({ data, context }) => {
+    const key = crypto.randomUUID();
+    const { error } = await context.supabase.from("areas").insert({
+      user_id: context.userId,
+      key,
+      name: data.name,
+      // After the defaults (0–7); equal values fall back to created_at, i.e. creation order.
+      sort_order: 1000,
+    });
+    if (error) throw new Error(error.message);
+    return { key };
+  });
+
+export const updateArea = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d) => z.object({ key: z.string().min(1), name: areaNameSchema }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("areas")
+      .update({ name: data.name })
+      .eq("key", data.key);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Deletes the area and its machines. History survives: set_logs keep snapshots. */
+export const deleteArea = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator((d) => z.object({ key: z.string().min(1) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { supabase } = context;
+    // Exercises first: if the area delete then fails, the area is still there to retry.
+    const ex = await supabase.from("exercises").delete().eq("area", data.key);
+    if (ex.error) throw new Error(ex.error.message);
+    const { error } = await supabase.from("areas").delete().eq("key", data.key);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
 
 export type Exercise = {
   id: string;
@@ -28,9 +99,13 @@ export const listExercises = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (data.length > 0) return data;
 
-    // First visit: seed the defaults. The RPC is a no-op if rows already exist,
-    // so concurrent first loads can't create duplicates.
-    const seed = await supabase.rpc("seed_default_exercises", { p_rows: SEED_EXERCISES });
+    // No machines: seed the starters, but only into areas the user still has. The RPC is a
+    // no-op if rows already exist, so concurrent first loads can't create duplicates.
+    const areas = await supabase.from("areas").select("key");
+    if (areas.error) throw new Error(areas.error.message);
+    const rows = starterExercises(areas.data.map((a) => a.key));
+    if (rows.length === 0) return data;
+    const seed = await supabase.rpc("seed_default_exercises", { p_rows: rows });
     if (seed.error) throw new Error(seed.error.message);
     const again = await select();
     if (again.error) throw new Error(again.error.message);
@@ -52,6 +127,11 @@ export const createExercise = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    // A page cached on another device can still offer a deleted area; refuse rather than
+    // save a machine nobody can see. RLS limits this lookup to the user's own areas.
+    const area = await supabase.from("areas").select("key").eq("key", data.area).maybeSingle();
+    if (area.error) throw new Error(area.error.message);
+    if (!area.data) throw new Error("area not found");
     const { error } = await supabase.from("exercises").insert({
       user_id: userId,
       area: data.area,

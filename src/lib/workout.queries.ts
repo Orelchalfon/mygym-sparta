@@ -1,5 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getActiveSession, getSession, listExercises } from "./workout.functions";
+import { getActiveSession, getSession, listAreas, listExercises } from "./workout.functions";
+
+/** The user's training areas (seeded with the defaults on first load). */
+export const areasQO = queryOptions({
+  queryKey: ["areas"],
+  queryFn: () => listAreas(),
+  staleTime: 5 * 60_000,
+});
 
 /** The user's exercise catalog and saved weight/reps. Changes rarely. */
 export const exercisesQO = queryOptions({
