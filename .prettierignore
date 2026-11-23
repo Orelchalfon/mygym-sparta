@@ -6,3 +6,6 @@ pnpm-lock.yaml
 package-lock.json
 bun.lock
 routeTree.gen.ts
+.netlify
+# Supabase client/types are generated and managed by Lovable
+src/integrations/supabase/

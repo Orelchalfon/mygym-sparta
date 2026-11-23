@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  useInView,
-  useMotionValue,
-  useReducedMotion,
-  animate,
-} from "motion/react";
+import { useInView, useMotionValue, useReducedMotion, animate } from "motion/react";
 
 type AnimatedCounterProps = {
   to: number;

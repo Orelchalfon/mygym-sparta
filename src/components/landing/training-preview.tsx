@@ -44,9 +44,7 @@ function PhoneScreen() {
         <div className="grid size-9 place-items-center rounded-xl text-muted-foreground">
           <X className="size-5" />
         </div>
-        <div className="text-[10px] font-bold uppercase tracking-widest text-primary">
-          מנוחה
-        </div>
+        <div className="text-[10px] font-bold uppercase tracking-widest text-primary">מנוחה</div>
         <div className="size-9" />
       </div>
 
@@ -151,14 +149,10 @@ function MachineCard() {
       className="w-40 rounded-2xl border border-border bg-card/95 p-4 shadow-2xl backdrop-blur"
     >
       <div className="text-sm font-bold">מכשיר 6</div>
-      <div className="mt-0.5 text-[10px] text-muted-foreground">
-        3 סטים × 7 חזרות
-      </div>
+      <div className="mt-0.5 text-[10px] text-muted-foreground">3 סטים × 7 חזרות</div>
       <div className="my-2 flex items-baseline justify-center gap-1">
         <span className="text-4xl font-black tabular-nums text-primary">35</span>
-        <span className="text-[10px] font-semibold text-muted-foreground">
-          ק"ג
-        </span>
+        <span className="text-[10px] font-semibold text-muted-foreground">ק"ג</span>
       </div>
       <div className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl bg-primary text-xs font-bold text-primary-foreground">
         <Play className="size-3 fill-current" />

@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  motion,
-  useReducedMotion,
-  type HTMLMotionProps,
-  type Variants,
-} from "motion/react";
+import { motion, useReducedMotion, type HTMLMotionProps, type Variants } from "motion/react";
 
 /**
  * Shared motion tokens so every landing-page animation shares one rhythm
@@ -31,11 +26,7 @@ type DivMotionProps = HTMLMotionProps<"div">;
  * Fades + slides content up the first time it scrolls into view.
  * Collapses to a quick opacity fade when the user prefers reduced motion.
  */
-export function Reveal({
-  children,
-  delay = 0,
-  ...props
-}: DivMotionProps & { delay?: number }) {
+export function Reveal({ children, delay = 0, ...props }: DivMotionProps & { delay?: number }) {
   const reduce = useReducedMotion();
   const variants = reduce ? reducedVariants : riseVariants;
   return (
@@ -72,9 +63,7 @@ export function StaggerGroup({
   const container: Variants = {
     hidden: {},
     show: {
-      transition: reduce
-        ? { staggerChildren: 0 }
-        : { staggerChildren: stagger, delayChildren },
+      transition: reduce ? { staggerChildren: 0 } : { staggerChildren: stagger, delayChildren },
     },
   };
   const triggerProps =

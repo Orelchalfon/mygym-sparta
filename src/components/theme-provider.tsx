@@ -24,7 +24,13 @@ function applyTheme(resolved: "light" | "dark") {
   root.style.colorScheme = resolved;
 }
 
-export function ThemeProvider({ children, defaultTheme = "system" }: { children: ReactNode; defaultTheme?: Theme }) {
+export function ThemeProvider({
+  children,
+  defaultTheme = "system",
+}: {
+  children: ReactNode;
+  defaultTheme?: Theme;
+}) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window === "undefined") return defaultTheme;
     return (localStorage.getItem(STORAGE_KEY) as Theme | null) ?? defaultTheme;

@@ -10,8 +10,7 @@ function base64UrlEncode(bytes: ArrayBuffer): string {
 export function generateVerifier(length = 64): string {
   const arr = new Uint8Array(length);
   crypto.getRandomValues(arr);
-  const charset =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
   let out = "";
   for (let i = 0; i < arr.length; i++) out += charset[arr[i] % charset.length];
   return out;
