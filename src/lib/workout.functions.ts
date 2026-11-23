@@ -127,6 +127,11 @@ export const createExercise = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    // A page cached on another device can still offer a deleted area; refuse rather than
+    // save a machine nobody can see. RLS limits this lookup to the user's own areas.
+    const area = await supabase.from("areas").select("key").eq("key", data.area).maybeSingle();
+    if (area.error) throw new Error(area.error.message);
+    if (!area.data) throw new Error("area not found");
     const { error } = await supabase.from("exercises").insert({
       user_id: userId,
       area: data.area,
